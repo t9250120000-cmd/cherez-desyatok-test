@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Прослушивание Дениса · 3.5.5</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fffdf9;--ink:#2a2433;--muted:#6c6475;--line:#e3dccf;--accent:#2f7d5b;--warn:#b5462f;color-scheme:light}
+@media (prefers-color-scheme: dark){:root{--bg:#1d1a21;--card:#26222b;--ink:#efe9f3;--muted:#a79fb0;--line:#3a3441;--accent:#5fc497;--warn:#ef8a72;color-scheme:dark}}
+@font-face{font-family:"Nunito";src:url(../fonts/nunito-cyrillic-800-normal.woff2) format("woff2");font-weight:800}
+body{margin:0;background:var(--bg);color:var(--ink);font:600 16px/1.45 "Nunito",system-ui,-apple-system,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:12px}
+h1{font-size:26px;margin:0}
+p{margin:0}.muted{color:var(--muted);font-size:14px}
+ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+li{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px}
+li.ok{border-color:var(--accent)} li.bad{border-color:var(--warn)}
+.play{grid-row:span 3;width:56px;height:56px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:22px;cursor:pointer}
+.play.on{background:var(--accent)}
+.id{font-weight:900;font-size:13px;color:var(--muted)} .say{font-weight:800;font-size:17px;min-width:0}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{min-height:44px;padding:6px 14px;border-radius:12px;border:2px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+li.ok .okb{border-color:var(--accent);color:var(--accent)} li.bad .badb{border-color:var(--warn);color:var(--warn)}
+.bar{position:sticky;top:0;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar button{min-height:44px;padding:6px 14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:800}
+textarea{width:100%;box-sizing:border-box;min-height:90px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:14px/1.4 ui-monospace,monospace;padding:8px}
+</style></head><body><div class="wrap">
+<h1>Прослушивание Дениса</h1>
+<p class="muted">Игра «Через десяток» 3.5.5. Каждая реплика воспроизводится тем же способом и с теми же границами, что в игре: один и тот же голосовой файл и тот же фрагмент. Нажмите ▶, при необходимости ещё раз, и отметьте «Чётко» или «Неразборчиво». Если плохо, сообщите номер реплики (например, R07) и слово.</p>
+<div class="bar"><span id="cnt">Оценено 0 из 0</span><button type="button" id="copy">Скопировать итог</button></div>
+<ol id="list"></ol>
+<textarea id="report" readonly hidden></textarea>
+<p class="muted">Отбор: распознаватель GigaAM не услышал «плюс» (21), расхождение слов или неполный конец (11), контрольные «плюс/шесть» и самые длинные фразы (15). Ошибка распознавателя не доказывает плохую запись: решает ваш слух.</p>
+</div>
+<script src="../js/audio.js"></script>
+<script>
+const ITEMS=[{"id": "R01", "say": "четыре плюс шесть равно десять, десять плюс один равно одиннадцать.", "why": "ASR не услышал «плюс»", "src": "denis-016.mp3", "start": 93.86, "dur": 4.36}, {"id": "R02", "say": "пять плюс пять равно десять, десять плюс один равно одиннадцать.", "why": "ASR не услышал «плюс»", "src": "denis-018.mp3", "start": 48.9, "dur": 4.36}, {"id": "R03", "say": "Решаем: пять плюс шесть. Сначала дополняем до десяти.", "why": "ASR не услышал «плюс»", "src": "denis-018.mp3", "start": 53.46, "dur": 3.88}, {"id": "R04", "say": "пять плюс девять равно четырнадцать", "why": "ASR не услышал «плюс»", "src": "denis-020.mp3", "start": 2.42, "dur": 2.44}, {"id": "R05", "say": "В задаче стало больше, значит, складываем: шесть плюс шесть.", "why": "ASR не услышал «плюс»", "src": "denis-021.mp3", "start": 44.74, "dur": 3.72}, {"id": "R06", "say": "шесть плюс девять равно пятнадцать", "why": "ASR не услышал «плюс»", "src": "denis-022.mp3", "start": 54.74, "dur": 2.6}, {"id": "R07", "say": "В задаче стало больше, значит, складываем: семь плюс семь.", "why": "ASR не услышал «плюс»", "src": "denis-024.mp3", "start": 69.06, "dur": 4.2}, {"id": "R08", "say": "десять плюс шесть равно сколько?", "why": "ASR не услышал «плюс»", "src": "denis-025.mp3", "start": 20.82, "dur": 2.12}, {"id": "R09", "say": "Спряталось три плюс шесть равно девять.", "why": "ASR не услышал «плюс»", "src": "denis-025.mp3", "start": 42.5, "dur": 2.6}, {"id": "R10", "say": "Спряталось два плюс три равно пять.", "why": "ASR не услышал «плюс»", "src": "denis-026.mp3", "start": 104.34, "dur": 3.24}, {"id": "R11", "say": "Решаем: восемь плюс шесть. Сначала дополняем до десяти.", "why": "ASR не услышал «плюс»", "src": "denis-027.mp3", "start": 26.98, "dur": 3.08}, {"id": "R12", "say": "В задаче стало больше, значит, складываем: восемь плюс шесть.", "why": "ASR не услышал «плюс»", "src": "denis-027.mp3", "start": 57.94, "dur": 3.56}, {"id": "R13", "say": "Решаем: восемь плюс девять. Сначала дополняем до десяти.", "why": "ASR не услышал «плюс»", "src": "denis-028.mp3", "start": 55.78, "dur": 3.56}, {"id": "R14", "say": "восемь плюс девять равно семнадцать", "why": "ASR не услышал «плюс»", "src": "denis-028.mp3", "start": 61.86, "dur": 2.6}, {"id": "R15", "say": "В задаче стало больше, значит, складываем: девять плюс шесть.", "why": "ASR не услышал «плюс»", "src": "denis-031.mp3", "start": 21.7, "dur": 3.56}, {"id": "R16", "say": "девять плюс один равно десять, десять плюс шесть равно шестнадцать.", "why": "ASR не услышал «плюс»", "src": "denis-031.mp3", "start": 35.22, "dur": 4.2}, {"id": "R17", "say": "три плюс девять", "why": "ASR не услышал «плюс»", "src": "denis-049.mp3", "start": 63.22, "dur": 1.96}, {"id": "R18", "say": "пять плюс шесть", "why": "ASR не услышал «плюс»", "src": "denis-049.mp3", "start": 71.22, "dur": 1.8}, {"id": "R19", "say": "шесть плюс девять", "why": "ASR не услышал «плюс»", "src": "denis-050.mp3", "start": 1.94, "dur": 1.48}, {"id": "R20", "say": "восемь плюс девять", "why": "ASR не услышал «плюс»", "src": "denis-050.mp3", "start": 25.86, "dur": 1.48}, {"id": "R21", "say": "девять плюс девять", "why": "ASR не услышал «плюс»", "src": "denis-050.mp3", "start": 40.42, "dur": 2.6}, {"id": "R22", "say": "Было десять слаймиков. Гулять ушли один, их комнатки пустые.", "why": "ASR: возможна неполная фраза", "src": "denis-004.mp3", "start": 38.58, "dur": 4.04}, {"id": "R23", "say": "Ты поселил три.", "why": "ASR: расхождение слов", "src": "denis-006.mp3", "start": 25.94, "dur": 1.64}, {"id": "R24", "say": "Спряталось три.", "why": "ASR: расхождение слов", "src": "denis-016.mp3", "start": 9.54, "dur": 1.32}, {"id": "R25", "say": "Спряталось пять.", "why": "ASR: расхождение слов", "src": "denis-018.mp3", "start": 102.9, "dur": 1.32}, {"id": "R26", "say": "Это то же, что тринадцать минус восемь.", "why": "ASR: расхождение слов", "src": "denis-019.mp3", "start": 65.22, "dur": 2.44}, {"id": "R27", "say": "Спряталось шесть.", "why": "ASR: расхождение слов", "src": "denis-020.mp3", "start": 105.86, "dur": 1.48}, {"id": "R28", "say": "Спряталось девять.", "why": "ASR: расхождение слов", "src": "denis-029.mp3", "start": 58.58, "dur": 1.64}, {"id": "R29", "say": "В задаче стало больше, значит, складываем: девять плюс восемь.", "why": "ASR: расхождение слов", "src": "denis-032.mp3", "start": 0.1, "dur": 4.36}, {"id": "R30", "say": "В задаче стало меньше, значит, вычитаем: одиннадцать минус два.", "why": "ASR: возможна неполная фраза", "src": "denis-033.mp3", "start": 43.86, "dur": 4.04}, {"id": "R31", "say": "Гулять уходят: семь. Нажимай на слаймиков. Начни со второго теремка.", "why": "ASR: возможна неполная фраза", "src": "denis-035.mp3", "start": 90.9, "dur": 4.68}, {"id": "R32", "say": "Последний фонарик! Ты почти у цели.", "why": "ASR: возможна неполная фраза", "src": "denis-052.mp3", "start": 45.94, "dur": 2.76}, {"id": "R33", "say": "Спряталось четыре плюс два равно шесть.", "why": "контроль: «плюс» и «шесть»", "src": "denis-021.mp3", "start": 24.82, "dur": 3.72}, {"id": "R34", "say": "девять плюс шесть равно пятнадцать", "why": "контроль: «плюс» и «шесть»", "src": "denis-030.mp3", "start": 117.62, "dur": 2.44}, {"id": "R35", "say": "восемь плюс два равно десять, десять плюс шесть равно шестнадцать.", "why": "контроль: «плюс» и «шесть»", "src": "denis-027.mp3", "start": 119.38, "dur": 3.72}, {"id": "R36", "say": "шесть плюс четыре равно десять, десять плюс один равно одиннадцать.", "why": "контроль: «плюс» и «шесть»", "src": "denis-020.mp3", "start": 52.34, "dur": 3.88}, {"id": "R37", "say": "В задаче стало больше, значит, складываем: шесть плюс восемь.", "why": "контроль: «плюс» и «шесть»", "src": "denis-022.mp3", "start": 21.38, "dur": 5.16}, {"id": "R38", "say": "Убрали шесть. семь, это шесть и сколько?", "why": "контроль: «шесть»", "src": "denis-045.mp3", "start": 112.98, "dur": 3.24}, {"id": "R39", "say": "Последняя цифра: четыре. Ты поселил четыре. шесть и четыре, это десять.", "why": "контроль: «шесть»", "src": "denis-006.mp3", "start": 3.54, "dur": 4.36}, {"id": "R40", "say": "Внизу ещё один: шесть.", "why": "контроль: «шесть»", "src": "denis-002.mp3", "start": 57.86, "dur": 2.12}, {"id": "R41", "say": "Смотрим на второй теремок. Считаем: один, два, три, четыре, пять, шесть.", "why": "контроль: «шесть»", "src": "denis-045.mp3", "start": 103.38, "dur": 4.52}, {"id": "R42", "say": "В первом теремке два слаймика. Свободные комнатки: один, два, три, четыре, пять, шесть, семь, восемь.", "why": "длинная фраза: начало и конец", "src": "denis-014.mp3", "start": 107.3, "dur": 8.04}, {"id": "R43", "say": "Смотрим на второй теремок. Считаем: один, два, три, четыре, пять, шесть, семь, восемь.", "why": "длинная фраза: начало и конец", "src": "denis-047.mp3", "start": 106.34, "dur": 6.92}, {"id": "R44", "say": "Считаем дальше от десяти: одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать, шестнадцать, семнадцать, восемнадцать, девятнадцать.", "why": "длинная фраза: начало и конец", "src": "denis-014.mp3", "start": 37.62, "dur": 6.44}, {"id": "R45", "say": "Привет! Я Слаймик Бульк. Я умею видеть, сколько слаймиков в теремке, не считая по одному. Научу и тебя!", "why": "длинная фраза: начало и конец", "src": "denis-001.mp3", "start": 23.78, "dur": 6.28}, {"id": "R46", "say": "Посмотри на синих слаймиков. Ты считал их по порядку: один, два, три, четыре, пять, шесть, семь, восемь, девять.", "why": "длинная фраза: начало и конец", "src": "denis-004.mp3", "start": 0.1, "dur": 6.28}, {"id": "R47", "say": "Посмотри на синих слаймиков. Ты считал их по порядку: один, два, три, четыре, пять, шесть, семь, восемь.", "why": "длинная фраза: начало и конец", "src": "denis-004.mp3", "start": 47.14, "dur": 6.28}];
+const KEY='terem_listen_355'; let V={}; try{V=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+let cur=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(V))}catch(e){}}
+function render(){
+  const ol=document.getElementById('list'); ol.textContent='';
+  let n=0; ITEMS.forEach(it=>{ if(V[it.id]) n++; });
+  document.getElementById('cnt').textContent='Оценено '+n+' из '+ITEMS.length;
+  ITEMS.forEach(it=>{
+    const li=document.createElement('li'); li.id=it.id; li.className=V[it.id]||'';
+    const b=document.createElement('button'); b.type='button'; b.className='play'+(cur===it.id?' on':''); b.textContent=cur===it.id?'■':'▶'; b.setAttribute('aria-label','Воспроизвести '+it.id);
+    b.onclick=()=>play(it);
+    const id=document.createElement('div'); id.className='id'; id.textContent=it.id+' · '+it.src+' · '+it.start.toFixed(2)+' с · '+it.dur.toFixed(2)+' с · '+it.why;
+    const s=document.createElement('div'); s.className='say'; s.textContent=it.say;
+    const bt=document.createElement('div'); bt.className='btns';
+    const ok=document.createElement('button'); ok.type='button'; ok.className='okb'; ok.textContent='Чётко'; ok.onclick=()=>{V[it.id]='ok';save();render();};
+    const bad=document.createElement('button'); bad.type='button'; bad.className='badb'; bad.textContent='Неразборчиво'; bad.onclick=()=>{V[it.id]='bad';save();render();};
+    bt.append(ok,bad); li.append(b,id,s,bt); ol.append(li);
+  });
+}
+function play(it){
+  AUDIO.unlock();
+  if(cur===it.id){ AUDIO.stop(); cur=null; render(); return; }
+  cur=it.id; render();
+  AUDIO.say({say:it.say,text:it.say},{force:true,onend:()=>{ if(cur===it.id){ cur=null; render(); } }});
+}
+document.getElementById('copy').onclick=()=>{
+  const lines=ITEMS.filter(it=>V[it.id]).map(it=>it.id+' '+(V[it.id]==='ok'?'чётко':'НЕРАЗБОРЧИВО')+' — '+it.say);
+  const t='Прослушивание 3.5.5: '+lines.length+'/'+ITEMS.length+'\n'+lines.join('\n');
+  const ta=document.getElementById('report'); ta.hidden=false; ta.value=t;
+  try{ navigator.clipboard.writeText(t).catch(()=>{ ta.select(); }); }catch(e){ ta.select(); }
+};
+AUDIO.init('../').then(()=>{ const miss=ITEMS.filter(it=>!AUDIO.sprites.index[it.say]); if(miss.length){ document.getElementById('cnt').textContent='Не найдены в игре: '+miss.map(m=>m.id).join(', '); } render(); });
+render();
+</script></body></html>
