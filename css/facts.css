@@ -1,0 +1,75 @@
+/* «Копилка фактов»: банки памяти, забег, гонка. Только токены из app.css/premium.css; никаких фоновых движений во время ввода. */
+.facts{align-items:stretch;gap:12px}
+.facts .example .ans{color:var(--ok)}
+.facts-head{display:flex;align-items:center;gap:12px}
+.facts-head .pal{width:72px;height:72px;flex:none}
+.facts-head h2{font-size:clamp(20px,5.6vw,26px)}
+.facts-head p{margin:2px 0 0;font-size:14px}
+.jars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.jar{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);font-weight:800;text-align:center;min-width:0}
+.jar svg{width:100%;max-width:64px;height:auto;display:block}
+.jar b{font-size:16px;color:var(--ink);line-height:1}
+.jar .lid{fill:var(--art-peach,#ECA47B);stroke:var(--art-ink,#403550);stroke-width:2}
+.jar .glass{fill:var(--card);stroke:var(--art-ink,#403550);stroke-width:2.2;fill-opacity:.85}
+.jar .jelly{fill:var(--art-mint,#BDE4C8);opacity:.55}
+.jar.l2 .jelly{fill:var(--art-sky,#CAE7F2)} .jar.l3 .jelly{fill:var(--art-lilac,#D9C7F0)} .jar.l4 .jelly{fill:var(--art-cream,#F5E5BC)} .jar.l5 .jelly{fill:var(--art-gold,#EFC765)}
+.jar .bead{stroke:var(--art-ink,#403550);stroke-width:.8} .jar .bead.rd{fill:var(--ca)} .jar .bead.bl{fill:var(--cb)}
+.facts-line{margin:0;text-align:center;font-size:14px;color:var(--muted)}
+.games{display:flex;flex-direction:column;gap:10px}
+.game{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:10px 14px;border:2px solid var(--line);border-radius:20px;background:var(--card);cursor:pointer;box-shadow:0 4px 0 var(--line);min-height:68px}
+.game:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--line)}
+.game:disabled{opacity:.5;cursor:default}
+.game .gi{width:44px;height:44px;flex:none;display:grid;place-items:center;font-size:28px;background:var(--soft);border-radius:14px}
+.game .gi svg,.game .gi .pal{width:34px;height:34px}
+.game span:last-child{display:flex;flex-direction:column;min-width:0}
+.game b{font-size:16px} .game small{color:var(--muted);font-weight:600;font-size:13px;line-height:1.3}
+.facts-parent{background:var(--soft);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.facts-parent summary{cursor:pointer;font-weight:800;color:var(--ink)}
+.facts-parent p{margin:6px 0 0}
+.facts-fab{position:absolute;z-index:3;right:12px;bottom:calc(max(6px,env(safe-area-inset-bottom)) + 64px);display:flex;align-items:center;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 14px 8px 10px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.14);color:var(--ink)}
+.facts-fab svg{width:22px;height:22px}
+.bigcard{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:14px 20px;box-shadow:0 5px 0 var(--line);min-width:min(100%,300px);text-align:center}
+.bigcard.new{border-color:var(--ca)}
+.bigcard.listen{opacity:.55}
+.facts .visual{gap:14px}
+.facts .visual .pal{width:84px;height:84px}
+.bar i.new{background:var(--ca)!important;opacity:1}
+.timer.big{width:100%;max-width:400px;height:14px}
+.timer.race i{background:var(--ca)}
+.track{position:relative;width:100%;max-width:420px;margin:0 auto;padding:4px 44px 4px 8px;display:flex;flex-direction:column;gap:4px}
+.lane{position:relative;height:40px;background:var(--soft);border-radius:20px}
+.lane::before{content:"";position:absolute;left:14px;right:14px;top:50%;border-top:2px dashed var(--line)}
+.runner{position:absolute;top:50%;width:36px;height:36px;margin-left:0;transform:translate(0,-50%);transition:left .35s cubic-bezier(.3,1.4,.5,1)}
+.runner .pal{width:36px!important;height:36px!important}
+.finish{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:24px;font-style:normal}
+.restnum{font-weight:900;font-size:64px;line-height:1;color:var(--btn);font-variant-numeric:tabular-nums}
+.beaddrop{position:relative;width:110px}
+.beaddrop .jar svg{max-width:110px}
+.bead-fly{position:absolute;left:50%;top:-6px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--ca);border:2px solid var(--art-ink,#403550);animation:beadfall .55s cubic-bezier(.4,0,.6,1.4) both}
+@keyframes beadfall{from{transform:translateY(-30px);opacity:0}30%{opacity:1}to{transform:translateY(70px);opacity:0}}
+@media (prefers-reduced-motion: reduce){.runner{transition:none}.bead-fly{animation:none;opacity:0}}
+
+/* вспышка */
+.flashbox{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:140px;justify-content:center}
+.flash{display:block}
+.flash.dice{width:min(46vw,150px);height:auto}
+.flash.flash-frame{width:min(88vw,330px);height:auto;max-width:100%}
+.flash .face{fill:var(--card);stroke:var(--frame);stroke-width:3}
+.flash .grid{stroke:var(--line);stroke-width:1.5}
+.flash .dot{fill:var(--ca);stroke:var(--art-ink,#403550);stroke-width:1.5} .flash .dot.bl{fill:var(--cb)}
+.flash.hidden .dot{visibility:hidden} .flash.hidden .face{fill:var(--soft)}
+/* числовая прямая */
+.numline-wrap{width:100%;max-width:420px;margin:0 auto}
+.numline{width:100%;height:auto;display:block}
+.numline .axis{stroke:var(--frame);stroke-width:3;stroke-linecap:round}
+.numline .tick{stroke:var(--muted);stroke-width:1.6} .numline .tick.ten{stroke:var(--frame);stroke-width:3}
+.numline .lbl{font:800 12px var(--f-body);fill:var(--muted);text-anchor:middle} .numline .lbl.ten{fill:var(--ink);font-weight:900}
+.numline .jump{fill:none;stroke-width:3;stroke-linecap:round} .numline .jump.first{stroke:var(--ca)} .numline .jump.second{stroke:var(--cb)}
+.numline .arrow.first{fill:var(--ca)} .numline .arrow.second{fill:var(--cb)}
+.numline .jl{font:900 13px var(--f-body);text-anchor:middle} .numline .jl.first{fill:var(--ca)} .numline .jl.second{fill:var(--cb)}
+.numline .start{fill:var(--ca);stroke:var(--card);stroke-width:2} .numline .end{fill:var(--ok);stroke:var(--card);stroke-width:2}
+/* настройки в копилке */
+.fset{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink)}
+.fset input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--btn)}
+.fset span{display:flex;flex-direction:column} .fset small{color:var(--muted);font-weight:600}
+.btn[data-act="facts"] svg{width:24px;height:24px;flex:none;vertical-align:-6px;margin-right:4px}

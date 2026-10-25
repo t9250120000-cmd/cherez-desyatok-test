@@ -1,0 +1,6 @@
+.transfer-dialog{width:min(92vw,620px);max-height:88vh;max-height:88dvh;overflow:auto;box-sizing:border-box;border:2px solid var(--line,#d5c8b8);border-radius:22px;padding:24px;background:var(--paper,#fff7ed);color:var(--ink,#25283b);font:inherit;line-height:1.5}
+.transfer-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2147483000;background:rgb(16 24 28 / .65);padding:12px;box-sizing:border-box}
+.transfer-overlay .transfer-dialog{margin:0}
+.transfer-dialog::backdrop{background:rgb(16 24 28 / .65)}
+.transfer-dialog h2{margin-top:0}.transfer-dialog .transfer-actions{display:flex;flex-wrap:wrap;gap:12px}.transfer-dialog .btn{min-height:48px;max-width:100%;white-space:normal}.transfer-dialog .filelbl{position:relative;overflow:hidden}
+@media(prefers-color-scheme:dark){.transfer-dialog{background:#21383a;color:#fff3db;border-color:#56716d}}

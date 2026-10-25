@@ -1,0 +1,377 @@
+{
+  "reference": "selected-tactile-reference.jpg",
+  "generator": "built-in image_gen",
+  "processing": "Image generation plus encoding/resizing only; sprite cells are selected at render time, no raster redrawing",
+  "houseGrid": {
+    "leftPercent": 8.45,
+    "topPercent": 31.55,
+    "widthPercent": 83.35,
+    "heightPercent": 57.2,
+    "columns": 5,
+    "rows": 2
+  },
+  "assets": [
+    {
+      "name": "map-day",
+      "file": "art/map-day.webp",
+      "width": 964,
+      "height": 1632,
+      "alpha": false,
+      "bytes": 270222
+    },
+    {
+      "name": "map-night",
+      "file": "art/map-night.webp",
+      "width": 964,
+      "height": 1631,
+      "alpha": false,
+      "bytes": 279600
+    },
+    {
+      "name": "bulk-neutral",
+      "file": "art/bulk-neutral.webp",
+      "width": 768,
+      "height": 768,
+      "alpha": true,
+      "bytes": 55618
+    },
+    {
+      "name": "bulk-happy",
+      "file": "art/bulk-happy.webp",
+      "width": 768,
+      "height": 768,
+      "alpha": true,
+      "bytes": 53434
+    },
+    {
+      "name": "bulk-think",
+      "file": "art/bulk-think.webp",
+      "width": 768,
+      "height": 768,
+      "alpha": true,
+      "bytes": 55174
+    },
+    {
+      "name": "counter-red",
+      "file": "art/counter-red.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 13792
+    },
+    {
+      "name": "counter-blue",
+      "file": "art/counter-blue.webp",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "bytes": 15754
+    },
+    {
+      "name": "terem-frame",
+      "file": "art/terem-frame.webp",
+      "width": 1200,
+      "height": 667,
+      "alpha": true,
+      "bytes": 74986
+    },
+    {
+      "name": "atlas-to10",
+      "file": "art/atlas-to10.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 128644
+    },
+    {
+      "name": "atlas-split",
+      "file": "art/atlas-split.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 135370
+    },
+    {
+      "name": "atlas-teen",
+      "file": "art/atlas-teen.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 129184
+    },
+    {
+      "name": "atlas-add",
+      "file": "art/atlas-add.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 121916
+    },
+    {
+      "name": "atlas-sub",
+      "file": "art/atlas-sub.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 131920
+    },
+    {
+      "name": "atlas-mix",
+      "file": "art/atlas-mix.webp",
+      "width": 1536,
+      "height": 512,
+      "alpha": true,
+      "bytes": 142114
+    },
+    {
+      "name": "atlas-chest",
+      "file": "art/atlas-chest.webp",
+      "width": 1200,
+      "height": 600,
+      "alpha": true,
+      "bytes": 114350
+    },
+    {
+      "name": "atlas-stickers",
+      "file": "art/atlas-stickers.webp",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "bytes": 315668
+    }
+  ],
+  "characterAtlases": {
+    "to10": {
+      "file": "art/atlas-to10.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    },
+    "split": {
+      "file": "art/atlas-split.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    },
+    "teen": {
+      "file": "art/atlas-teen.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    },
+    "add": {
+      "file": "art/atlas-add.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    },
+    "sub": {
+      "file": "art/atlas-sub.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    },
+    "mix": {
+      "file": "art/atlas-mix.webp",
+      "columns": 3,
+      "rows": 1,
+      "moods": [
+        "neutral",
+        "happy",
+        "think"
+      ],
+      "width": 1536,
+      "height": 512
+    }
+  },
+  "chestAtlas": {
+    "file": "art/atlas-chest.webp",
+    "columns": 2,
+    "rows": 1,
+    "width": 1200,
+    "height": 600
+  },
+  "stickersAtlas": {
+    "file": "art/atlas-stickers.webp",
+    "columns": 6,
+    "rows": 4,
+    "width": 1536,
+    "height": 1024,
+    "rects": [
+      [
+        44,
+        50,
+        207,
+        197
+      ],
+      [
+        294,
+        68,
+        214,
+        177
+      ],
+      [
+        541,
+        54,
+        214,
+        194
+      ],
+      [
+        789,
+        49,
+        216,
+        208
+      ],
+      [
+        1039,
+        77,
+        220,
+        168
+      ],
+      [
+        1280,
+        80,
+        235,
+        164
+      ],
+      [
+        39,
+        292,
+        209,
+        216
+      ],
+      [
+        293,
+        288,
+        209,
+        216
+      ],
+      [
+        562,
+        284,
+        174,
+        234
+      ],
+      [
+        782,
+        308,
+        226,
+        186
+      ],
+      [
+        1047,
+        287,
+        184,
+        229
+      ],
+      [
+        1294,
+        295,
+        205,
+        215
+      ],
+      [
+        37,
+        544,
+        230,
+        193
+      ],
+      [
+        313,
+        537,
+        193,
+        203
+      ],
+      [
+        544,
+        536,
+        211,
+        203
+      ],
+      [
+        785,
+        532,
+        228,
+        205
+      ],
+      [
+        1049,
+        557,
+        207,
+        174
+      ],
+      [
+        1297,
+        537,
+        190,
+        194
+      ],
+      [
+        36,
+        778,
+        247,
+        181
+      ],
+      [
+        306,
+        755,
+        212,
+        210
+      ],
+      [
+        551,
+        773,
+        234,
+        194
+      ],
+      [
+        794,
+        791,
+        233,
+        168
+      ],
+      [
+        1058,
+        764,
+        195,
+        206
+      ],
+      [
+        1299,
+        760,
+        194,
+        213
+      ]
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+/* «Фонарики теремка»: вступление, полоса фонариков и панель разговора.
+   В ожидании ответа ничего не движется; реакция фонарика ≤ 450 мс и отключается reduced motion. */
+.talk{align-items:center;text-align:center;gap:14px}
+.talk-scene{position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px 0;border-radius:24px;background:linear-gradient(180deg,var(--soft),transparent)}
+.talk-scene .talk-hero{width:clamp(130px,40vw,190px);height:auto}
+.talk-scene .talk-hero svg{width:100%;height:auto}
+.lanterns{display:flex;justify-content:center;gap:clamp(14px,6vw,30px);position:relative;padding-top:6px}
+.lanterns::before{content:"";position:absolute;left:4%;right:4%;top:6px;border-top:2px solid var(--line)}
+.lantern{width:38px;height:60px;overflow:visible}
+.lantern .hook{stroke:var(--line);stroke-width:2}
+.lantern .cap{fill:var(--art-ink,#403550)}
+.lantern .glass{fill:var(--card);stroke:var(--art-ink,#403550);stroke-width:2}
+.lantern .flame{fill:var(--line)}
+.lantern.lit .glass{fill:#FFE9A8}
+.lantern.lit .flame{fill:#F29A2E}
+.lantern.pop{animation:lanternpop .45s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes lanternpop{from{transform:scale(.8)}to{transform:scale(1)}}
+.talk-bubble{position:relative;width:100%;max-width:420px;background:var(--card);border:2px solid var(--line);border-radius:22px;padding:14px 54px 14px 16px;text-align:left;box-shadow:0 4px 0 var(--line)}
+.talk-bubble p{margin:0;font-size:clamp(17px,4.6vw,20px);font-weight:800;line-height:1.35;color:var(--ink)}
+.talk-bubble .say{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:44px;height:44px}
+.talk-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
+.talk-choice.one{grid-template-columns:1fr}
+.talk-choice .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:96px;font-size:18px;margin:0}
+.talk-choice .btn svg,.talk-buttons .btn svg,.talk-entry svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.talk-choice .talk-keys{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.talk-note{margin:0;font-size:14px;color:var(--muted);max-width:420px}
+.talk-note.warn{color:var(--ink);font-weight:700}
+.talk-entry{display:flex;align-items:center;justify-content:center;gap:10px}
+.talk-entry .talk-mini{width:34px;height:34px;flex:none}
+.talk-strip{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin:0 0 4px}
+.talk-strip .lanterns{gap:10px;padding-top:4px}
+.talk-strip .lanterns::before{top:4px}
+.talk-strip .lantern{width:22px;height:36px}
+.talk-strip span{font-size:13px;font-weight:800;color:var(--muted)}
+.talk-panel{width:100%;max-width:440px;margin:2px auto 10px;padding:10px 14px;border:2px solid var(--line);border-radius:20px;background:var(--card);text-align:center;color:var(--ink)}
+body[data-screen="task"] .ask>.talk-panel{grid-column:1/-1;min-width:0}
+.talk-panel p{margin:0 0 8px;font-size:15px;font-weight:700}
+.talk-panel .talk-heard{font-size:20px;font-weight:900}
+.talk-panel .talk-heard b{font-size:32px;color:var(--ok)}
+.talk-panel[data-state="listening"]{border-color:var(--ok)}
+.talk-state .dot{display:inline-block;width:12px;height:12px;margin-right:8px;border-radius:50%;background:var(--ok);vertical-align:-1px}
+.talk-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.talk-buttons .btn{display:inline-flex;align-items:center;gap:6px;min-height:48px;min-width:96px;margin:0}
+.talk-buttons .talk-off{flex-basis:100%;min-height:44px;font-size:14px}
+.talk-panel .talk-buttons:empty{display:none}
+.companion-portrait[data-listening="true"]::after{content:"Слушаю";position:absolute;bottom:0;left:50%;transform:translateX(-50%);padding:5px 10px;font:900 12px/1.2 var(--f-body);border-radius:12px;background:var(--ok);color:var(--btn-fg);white-space:nowrap}
+@media (max-width:370px){.talk-choice .btn{min-height:84px;font-size:16px}.talk-bubble{padding:12px 50px 12px 12px}}
+@media (prefers-reduced-motion: reduce){.lantern.pop{animation:none}}
