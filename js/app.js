@@ -49,7 +49,7 @@ function toast(msg){ S.toast=msg; render(); setTimeout(()=>{ if(S.toast===msg){ 
 
 /* ---------- серия заданий ---------- */
 function startSession(skill, len){
-  const p=P(); S.lessonLen=len||0; S.skill=skill||p.cur; S.count=0; S.results=[]; S.retry=[]; S.notice=''; S.diag=null; S.earned=0; E.setLast(null);
+  const p=P(); S.lessonLen=len||(+hook('sessionLen',skill||p.cur)||0); S.skill=skill||p.cur; S.count=0; S.results=[]; S.retry=[]; S.notice=''; S.diag=null; S.earned=0; E.setLast(null);
   go('task'); nextTask();
 }
 function nextTask(){
@@ -125,6 +125,7 @@ function submit(){
   const t=S.t, st=curStep(); if(!t||!st||st.kind!=='num'||S.busy||S.kp==='') return;
   const v=parseInt(S.kp,10); S.kp='';
   if(S.diag){ diagAnswer(v===st.ans); return; }
+  hook('answer',t,st,v===st.ans,v);
   if(v===st.ans){
     AU.sfx.ok(); E.clearH(t); t.msg=E.pick(PH.praise); t.msgT='ok'; t.wr=0; stopFlash(); t.covered=false;
     if(st.ok) st.ok(); t.si++; t.heard=false; t.hintChain='';
@@ -159,7 +160,7 @@ function finishTask(){
       }
     }else if(st.phase>1 && last4.length===4 && last4.filter(x=>!x).length>=3){ st.phase--; st.hist=[]; S.notice=PH.ui.phaseDown.text; S.say=PH.ui.phaseDown; }
   }
-  save(); render();
+  save(); hook('taskDone',t,p); render();
   if(t.clean) AU.sfx.coin();
   if(S.unlocked) AU.sfx.unlock();
   AU.say(t.msg, {onend:()=>{ if(S.say) AU.say(S.say); }});
@@ -401,6 +402,7 @@ function viewParent(){
     h+='<h3>Навыки</h3><ul class="skl">'+E.SKILLS.map(s=>{ const st=p.skills[s.id]; return '<li><span>'+s.n+' · '+s.title+'</span><b>'+(st.done?'освоено':(s.id===p.cur?'сейчас · ':'')+E.phaseName(s.id,st.phase))+'</b></li>'; }).join('')+'</ul>';
     const hard=Object.keys(p.hard).filter(k=>p.hard[k]>0);
     h+='<h3>Трудные примеры</h3>'+(hard.length?'<div class="hardlist">'+hard.map(k=>'<span>'+k.replace('-',' − ').replace('+',' + ')+'</span>').join('')+'</div>':'<p class="muted">Пока нет.</p>');
+    h+=hook('parentStats',p);
     h+='<h3>Как устроена программа</h3><ul class="help"><li><b>Лесенка из 7 навыков.</b> Через десяток не получится без трёх опор: состав 10, разбиение чисел, «13 — это 10 и 3». Проверка находит ступеньку с пробелом.</li><li><b>Три этапа:</b> руками (двигает слаймиков) → по картинке → в уме. 4 из 5 без ошибок — вперёд, 3 ошибки из 4 — шаг назад.</li><li><b>Ошибки:</b> первая — подсказка, вторая — разбор голосом, ответ ребёнок вводит сам. Пример возвращается через 3 задания.</li><li><b>Монетки:</b> '+DB.parent.coinsTask+' за задание без ошибок, +'+DB.parent.coinsSeries+' за серию без ошибок, +'+DB.parent.coinsDay+' за первое занятие в день.</li><li><b>Дома:</b> лоток для яиц на 10 ячеек и пуговицы двух цветов — те же действия, что на экране.</li></ul>';
   }else if(S.tab==='wishes'){
     h+='<h3>Подарки в магазине</h3><p class="muted">Курс: 1 монетка = '+DB.parent.rate+' ₽. Ребёнок видит цену в монетках и сколько дней осталось.</p>';

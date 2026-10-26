@@ -1,0 +1,90 @@
+/* Чувство числа, «Спокойный фокус», числовая прямая-подсказка, отчёт родителю. Без движения ожидания. */
+body[data-screen="senseGames"] .wrap{max-width:720px;padding:max(12px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+body[data-screen="senseGames"] #app>.topbar{display:none}
+
+/* карточки в библиотеке */
+.sg-card-race span{display:grid;place-items:center;width:34px;height:43px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:20px;font-weight:900}
+.sg-card-race span.ten{background:var(--hl);border:2px solid var(--coin)}
+.sg-card-triple{flex-wrap:wrap;gap:6px}.sg-card-triple>span:not(.sg-frame){font-size:26px;font-weight:900;line-height:1}.sg-card-triple .w{font-size:16px}
+.sg-frame{display:inline-grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:3px;border-radius:6px;background:var(--line);vertical-align:middle}
+.sg-frame i{width:12px;height:12px;border-radius:3px;background:var(--card)}
+.sg-frame i.on{background:var(--ca,#D43F57);border-radius:50%}
+.sg-frame.rest i.on{background:var(--cb,#2F72C4)}
+.sg-frame.mini i{width:9px;height:9px}
+
+/* дорожка */
+.sg-race-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 12px}
+.sg-score{font-size:16px;color:var(--muted)}.sg-score b{color:var(--ink);font-size:22px}
+.sg-die{display:grid;grid-template-columns:repeat(3,12px);grid-template-rows:repeat(3,12px);gap:4px;padding:8px;border-radius:14px;background:var(--card);border:2px solid var(--ink);box-shadow:var(--shadow)}
+.sg-die i{border-radius:50%}.sg-die i.on{background:var(--ink)}
+.sg-board{display:flex;flex-direction:column;gap:10px;max-width:460px;margin:0 auto}
+.sg-start{display:flex}.sg-start .sg-cell{width:auto;min-width:150px;aspect-ratio:auto;min-height:52px;padding:6px 12px;align-items:center;gap:6px}
+.sg-start .sg-tok{position:static;width:34px;height:34px}
+.sg-block{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:6px;border-radius:14px 14px 10px 10px;background:var(--line)}
+.sg-cell{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;aspect-ratio:1;min-width:44px;min-height:44px;padding:4px 6px;border:0;border-radius:10px;background:var(--card);color:var(--ink);font:800 16px/1 var(--f-body);cursor:pointer;touch-action:manipulation}
+.sg-cell b{font-weight:900}
+.sg-cell:disabled{cursor:default;opacity:1}
+.sg-cell.five b{color:var(--ink)}
+.sg-cell.ten{background:var(--hl);box-shadow:inset 0 0 0 2px var(--coin)}
+.sg-cell.hop{box-shadow:inset 0 0 0 3px var(--ok)}
+.sg-cell.at{background:var(--soft)}
+
+.sg-tok{position:absolute;right:3px;bottom:3px;width:32px;height:32px;pointer-events:none;object-fit:contain}
+.sg-tok.you{border-radius:50%;background:var(--card);box-shadow:0 0 0 3px var(--btn)}
+.sg-tok.you svg{width:100%;height:100%;display:block}
+.sg-score .sg-tok{position:static;display:inline-block;width:26px;height:26px;vertical-align:middle;margin-right:4px}
+.sg-tok.bulk{right:auto;left:3px}
+@media(max-width:370px){.sg-cell .sg-tok{width:26px;height:26px}}
+/* тройка */
+.sg-given{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:6px auto 14px;padding:16px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);max-width:460px}
+.sg-given .ng-button{font-size:14px;min-height:44px;padding:8px 12px}
+.sg-digit.big{font-size:64px;font-weight:900;line-height:1}
+.sg-word.big{font-size:34px;font-weight:900}
+.sg-pic{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.sg-pic.big .sg-frame i{width:24px;height:24px}
+.sg-row{max-width:460px;margin:0 auto 12px}.sg-row h2{font-size:14px;color:var(--muted);margin:0 0 6px;font-weight:800}
+.sg-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sg-opt{display:grid;place-items:center;min-height:64px;padding:8px 4px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);cursor:pointer;touch-action:manipulation;font-family:var(--f-body)}
+.sg-opt.chosen{border-color:var(--ok);background:var(--hl)}.sg-opt:disabled{cursor:default;opacity:1}
+.sg-digit.small{font-size:30px;font-weight:900}
+.sg-word.small{font-size:20px;font-weight:800}
+.sg-row.word .sg-options{grid-template-columns:1fr}.sg-row.word .sg-opt{min-height:52px}
+.sg-pic.small{gap:3px;flex-direction:column;align-items:center}.sg-pic.small .sg-frame i{width:10px;height:10px}
+.sg-helpcard{display:flex;justify-content:center;margin:0 auto 12px}
+.sg-done-list{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.sg-done-list span{min-width:44px;padding:8px;border-radius:12px;background:var(--soft);font-size:22px;font-weight:900}
+
+/* числовая прямая-подсказка в задании */
+.nl-hint{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.nl-hint svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.nl-support{background:var(--card);border-radius:16px;padding:6px 8px;border:1px solid var(--line)}
+.nl-note{text-align:center;font-size:15px;margin:2px 0 0}
+
+/* перерыв по усталости */
+.focus-rest{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(30,24,52,.55)}
+.focus-rest-card{width:min(420px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px 18px;border-radius:28px;background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.focus-rest-card img{width:120px;height:120px;object-fit:contain}
+.focus-rest-card h2{margin:0;font-size:26px}.focus-rest-card p{margin:0;line-height:1.4}
+.focus-rest-card .move{font-weight:800;background:var(--soft);border-radius:16px;padding:10px 12px}
+.focus-rest-card .btn{width:100%}
+
+/* «Спокойный фокус»: крупнее, тише, без лишнего */
+body.focus-calm *{animation-iteration-count:1!important}
+body.focus-calm .task-buddy{display:none!important}
+@media(min-height:900px){body.focus-calm .frames{--cell:56px}
+body.focus-calm .frames .terem:nth-child(2){--cell:38px}
+body.focus-calm .frames.single{--cell:clamp(56px,15vw,66px)}
+body.focus-calm .frames.tap{--cell:54px}
+body.focus-calm .frames.tap .terem[data-interactive="false"]{--cell:44px}
+body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:56px}}
+@media(min-height:900px) and (max-width:370px){body.focus-calm .frames{--cell:52px}body.focus-calm .frames .terem:nth-child(2){--cell:40px}body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:50px}}
+@media(min-height:900px){body.focus-calm[data-screen="task"] .example{font-size:34px}body.focus-calm .key:not(.go):not(.del){min-height:56px;font-size:29px}}
+
+/* отчёт родителю */
+.ins-report{margin-top:8px}
+.ins-stats>div b{font-size:22px}
+.ins-steps b.ins-top{color:var(--danger,#C0392B)}
+.ins-advice{display:flex;flex-direction:column;gap:10px}
+.ins-tip{background:var(--soft);border-radius:16px;padding:12px 14px}.ins-tip b{display:block;margin-bottom:4px}.ins-tip p{margin:0;line-height:1.4;font-size:15px}
+.ins-note{font-size:13px}
+.ins-text{width:100%;min-height:140px;font-size:13px;margin-top:8px}
+@media(prefers-reduced-motion:reduce){.sense-games *,.focus-rest *{animation:none!important;transition:none!important}}
