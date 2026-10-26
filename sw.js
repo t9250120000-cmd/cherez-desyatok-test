@@ -1,5 +1,8 @@
 // Офлайн-кэш «Через десяток». При обновлении файлов увеличьте VERSION.
-const VERSION = 'terem-shared-3.6.0-r1';
+// Установка кладёт в кэш лёгкое ядро (код, стили, картинки, словарь озвучки) — секунды даже на медленной сети.
+// Тяжёлые записи голоса (audio/*.mp3) докачиваются после активации порциями по сообщению страницы:
+// событие службы в Chrome живёт не дольше 5 минут, а 90+ МБ на медленной сети не успевают за одно событие.
+const VERSION = 'terem-shared-3.6.0-r2';
 const FILES = [
   "./",
   "art/atlas-add.webp",
@@ -193,14 +196,147 @@ const FILES = [
   "vendor/ort/ThirdPartyNotices.txt",
   "voice-model/LICENSE-Apache-2.0.txt",
 ];
-self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(file => new Request(file, {cache: 'reload'})))).then(() => self.skipWaiting())); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('terem-') && k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+const HASH = {
+"audio/denis-000.mp3": "990833774574",
+"audio/denis-001.mp3": "bb8281109db5",
+"audio/denis-002.mp3": "1ceacbdc2cae",
+"audio/denis-003.mp3": "684977491d82",
+"audio/denis-004.mp3": "967f2d0d5745",
+"audio/denis-005.mp3": "d811b13cb2fe",
+"audio/denis-006.mp3": "2996f8d5dcbe",
+"audio/denis-007.mp3": "babaf04a3dd8",
+"audio/denis-008.mp3": "417004aa9144",
+"audio/denis-009.mp3": "88cb4e03d027",
+"audio/denis-010.mp3": "41db2691f4f4",
+"audio/denis-011.mp3": "625343347600",
+"audio/denis-012.mp3": "e9d854603d73",
+"audio/denis-013.mp3": "e6dee32f302a",
+"audio/denis-014.mp3": "7efe67f96a52",
+"audio/denis-015.mp3": "90281a73019d",
+"audio/denis-016.mp3": "14cc1acb7435",
+"audio/denis-017.mp3": "3aec539b4ba4",
+"audio/denis-018.mp3": "c527abff3e8d",
+"audio/denis-019.mp3": "2d4cafc2e950",
+"audio/denis-020.mp3": "40a9ddbd1928",
+"audio/denis-021.mp3": "c84c8fef9dca",
+"audio/denis-022.mp3": "64bbbef55083",
+"audio/denis-023.mp3": "7eee7cd36bd2",
+"audio/denis-024.mp3": "71d226987022",
+"audio/denis-025.mp3": "176ac8ca53e2",
+"audio/denis-026.mp3": "d091cabe8aa1",
+"audio/denis-027.mp3": "5d0c10e4ad46",
+"audio/denis-028.mp3": "32b83f14fd44",
+"audio/denis-029.mp3": "d42a44c0bef6",
+"audio/denis-030.mp3": "7dec4860d710",
+"audio/denis-031.mp3": "dc1317158390",
+"audio/denis-032.mp3": "9291138fe88e",
+"audio/denis-033.mp3": "aa8aa5931fd2",
+"audio/denis-034.mp3": "9e16ab21c9e4",
+"audio/denis-035.mp3": "66d6c8bef3b7",
+"audio/denis-036.mp3": "7989283949ea",
+"audio/denis-037.mp3": "458f417a77c2",
+"audio/denis-038.mp3": "7877fc6be912",
+"audio/denis-039.mp3": "4a5c3f490680",
+"audio/denis-040.mp3": "cd723b00dc75",
+"audio/denis-041.mp3": "c0d0668beea9",
+"audio/denis-042.mp3": "a0d98d3f8cb3",
+"audio/denis-043.mp3": "f51e1fac55f1",
+"audio/denis-044.mp3": "ac5463dd6cfb",
+"audio/denis-045.mp3": "42ba046549ec",
+"audio/denis-046.mp3": "e307fe0bd3c1",
+"audio/denis-047.mp3": "e07c8f00d538",
+"audio/denis-048.mp3": "2447d36507a9",
+"audio/denis-049.mp3": "a470508dab57",
+"audio/denis-050.mp3": "395caa5d4fc8",
+"audio/denis-051.mp3": "92c09224a65c",
+"audio/denis-052.mp3": "58f7d6b383b2",
+"audio/denis-053.mp3": "9f5cb3bcf7c3",
+"audio/facts.mp3": "f8a073968427",
+"audio/lesson.mp3": "cf242d3e3237",
+"audio/s00.mp3": "265ddc898142",
+"audio/s01.mp3": "d3a16ad963e2",
+"audio/s02.mp3": "eae51d2b1fb9",
+"audio/s03.mp3": "df7d48157cf1",
+"audio/s04.mp3": "9c58aa6b70c5",
+"audio/s05.mp3": "ced5bb4bd061",
+"audio/s06.mp3": "5bc58fd18923",
+"audio/s07.mp3": "90fa6a4737dc",
+"audio/s08.mp3": "8f0703b705af",
+"audio/s09.mp3": "b1acb116bb4e",
+"audio/s10.mp3": "5dab52480068",
+"audio/s11.mp3": "02b829151619",
+"audio/s12.mp3": "7279d8cc1c9c",
+"audio/s13.mp3": "3291ecf68112",
+"audio/s14.mp3": "8d55d0905f33",
+"audio/s15.mp3": "af6cd2354b63",
+"audio/s16.mp3": "78832e65f7d5",
+"audio/s17.mp3": "6f8b14f992fc",
+"audio/s18.mp3": "c5114e2c8edf",
+"audio/s19.mp3": "1196a97dbbb9",
+"audio/s20.mp3": "82a4ef53f1d7",
+"audio/s21.mp3": "17cbf3f3141b",
+"audio/s22.mp3": "1f7145f07a06",
+"audio/s23.mp3": "3f83a0854216",
+"audio/s24.mp3": "59e2987ea6ed",
+"audio/s25.mp3": "f5024a1343cf",
+"audio/s26.mp3": "1d3a31f9caef",
+"audio/s27.mp3": "1f48c2efac15",
+"audio/s28.mp3": "9dfbc277a75a",
+"audio/s29.mp3": "8210d8b6dfe1",
+"audio/s30.mp3": "d97f0eed38e9",
+"audio/s31.mp3": "15f031168508",
+"audio/s32.mp3": "b7dd8d72f042",
+"audio/s33.mp3": "0874d0293e07",
+"audio/s34.mp3": "f04cb54e49c1",
+"audio/s35.mp3": "bf70748f4769",
+"audio/s36.mp3": "422e5ee967c9",
+"audio/s37.mp3": "5e8cd6e03282",
+"audio/s38.mp3": "99d3e61c427b",
+"audio/s39.mp3": "7daa63b8e122",
+"audio/s40.mp3": "ba020274533a"
+};
+const LAZY = f => Object.prototype.hasOwnProperty.call(HASH, f);
+const key = f => LAZY(f) ? f + '?v=' + HASH[f] : f;
+const reload = f => new Request(key(f), {cache: 'reload'});
+async function adoptOld(cache){
+  // Записи с тем же содержимым (тот же хэш) берём из прежнего кэша, чтобы не скачивать их снова.
+  for (const name of await caches.keys()) {
+    if (name === VERSION || !name.startsWith('terem-')) continue;
+    const old = await caches.open(name);
+    for (const f of FILES.filter(LAZY)) { const hit = await old.match(key(f)); if (hit && !(await cache.match(key(f)))) await cache.put(key(f), hit); }
+  }
+}
+self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.filter(f => !LAZY(f)).map(reload)).then(() => adoptOld(c).catch(() => {}))).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+let filling = null;
+async function fill(budgetMs){
+  const t0 = Date.now(), c = await caches.open(VERSION); let got = 0, failed = 0;
+  const missing = []; for (const f of FILES.filter(LAZY)) if (!(await c.match(key(f)))) missing.push(f);
+  for (const f of missing) {
+    if (Date.now() - t0 > budgetMs) break;
+    try { const r = await fetch(reload(f)); if (r.ok) { await c.put(key(f), r); got++; } else failed++; } catch (err) { failed++; }
+  }
+  let left = 0; for (const f of FILES.filter(LAZY)) if (!(await c.match(key(f)))) left++;
+  // Прежние версии удаляем, только когда новая докачана целиком: до этого они остаются запасом без сети.
+  if (!left) for (const name of await caches.keys()) if (name !== VERSION && name.startsWith('terem-')) await caches.delete(name);
+  return {type: 'terem-fill', version: VERSION, total: FILES.filter(LAZY).length, left, got, failed};
+}
+self.addEventListener('message', e => {
+  if (!e.data || e.data.type !== 'terem-fill') return;
+  if (!filling) filling = fill(200000).finally(() => { filling = null; });
+  const p = filling.then(res => { if (e.source) e.source.postMessage(res); });
+  e.waitUntil(p);
+});
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(caches.match(e.request, {ignoreSearch: true}).then(hit => hit || fetch(e.request).then(res => {
-    const u = new URL(e.request.url);
+  const u = new URL(e.request.url);
+  const store = res => {
     // модель распознавания хранится в собственном кэше voicemodel-ru-v1 (кнопка взрослого), не дублируем её здесь
     if (res.ok && u.origin === location.origin && !u.pathname.includes('/voice-model/') && !u.pathname.includes('/vendor/ort/')) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(e.request, copy)); }
     return res;
-  }).catch(() => e.request.mode === 'navigate' ? caches.match('./index.html') : Response.error())));
+  };
+  // Сначала текущий кэш, потом сеть, и только без сети — прежняя версия (пока новая докачивается).
+  const older = () => caches.match(e.request, {ignoreSearch: true});
+  e.respondWith(caches.open(VERSION).then(c => c.match(e.request, {ignoreSearch: true})).then(hit => hit || fetch(e.request).then(res => res.ok ? store(res) : older().then(old => old || res)).catch(() =>
+    older().then(old => old || (e.request.mode === 'navigate' ? caches.match('./index.html', {ignoreSearch: true}) : Response.error())))));
 });

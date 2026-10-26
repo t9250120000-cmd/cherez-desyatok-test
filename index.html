@@ -55,6 +55,12 @@
 <script src="js/sense-games-core.js"></script>
 <script src="js/sense-games.js"></script>
 <script src="js/focus-mode.js"></script>
-<script>if('serviceWorker' in navigator && location.protocol!=='capacitor:'){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }</script>
+<script>if('serviceWorker' in navigator && location.protocol!=='capacitor:'){ window.addEventListener('load', ()=>{
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  // докачка записей голоса для работы без сети: порциями, пока остаются файлы и есть продвижение
+  const ask=()=>navigator.serviceWorker.ready.then(r=>{ const w=navigator.serviceWorker.controller||r.active; if(w) w.postMessage({type:'terem-fill'}); }).catch(()=>{});
+  navigator.serviceWorker.addEventListener('message', e=>{ const d=e.data; if(!d||d.type!=='terem-fill') return; window.__offline=d; if(d.left>0&&d.got>0) setTimeout(ask,500); });
+  ask(); window.addEventListener('online', ask);
+}); }</script>
 </body>
 </html>

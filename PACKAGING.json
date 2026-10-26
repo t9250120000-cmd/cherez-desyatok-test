@@ -3,8 +3,8 @@
   "version": "3.6.0",
   "nativeBuild": 10,
   "mode": "web",
-  "sourceSHA256": "4314cf768b7ba60aff0054b7862e7150c8df57bcff99549926ceff1b49f1e66c",
-  "cacheVersion": "terem-shared-3.6.0-r1",
+  "sourceSHA256": "129b7c048c2dd67b7c96398d58df13bb0843e89f7fb4eadf6134d9ea1cfd952c",
+  "cacheVersion": "terem-shared-3.6.0-r2",
   "files": {
     "art/atlas-add.webp": "3ce5acecbd749b06c4b4d07e6ab3c297dfb59ff2676cb29c97bbedc7199e5cbb",
     "art/atlas-chest.webp": "d93d66eca629580089e7306aad6c527c48ea71ec9e1ac5e0292e6be5513d1a5b",
@@ -156,7 +156,7 @@
     "icons/icon-192.png": "262d1c650058352ea41fb79ec5723c9697eb3f3b0c1bfa5d9603e4b09aa482ba",
     "icons/icon-512.png": "3cb84829136e9139028d9180f42e26df9bf43d2b523b90020f4b42da09d5565d",
     "icons/icon-maskable-512.png": "3cb84829136e9139028d9180f42e26df9bf43d2b523b90020f4b42da09d5565d",
-    "index.html": "c80e7152c9e8831d1913c9dc632f4c5e4883849bdf7f94023d20c0ee2c997dc8",
+    "index.html": "71314780e022c046becb130337ebc68a081a16c2a6ccf42d5ea53a9da0749504",
     "js/app.js": "bf9f4fba56298be91b3cd8d2d977ef38cb746e464c04aad51688bf1889216967",
     "js/art-catalog.js": "3a7acfe0d5a746fd68191c9d458782568edd130aa72f0d9d547481713f7c0658",
     "js/audio.js": "f4d73e1e2ae14c23f1ab6720f7d382305dc504836b517b269e50174ce0a0b00e",
@@ -190,7 +190,7 @@
     "licenses.html": "583d1a575b6eedaf48bcc4c56e54eafea99ecf1afa79999c3255531a772441f3",
     "manifest.webmanifest": "f30cfde9dc56fc6be1d3db4dba28af16375dc864476acbbd44c56a38a8088983",
     "preview.html": "fe2bfa74f8b14382a02d91b100f183e8ba4386dcca75d4fbfb869908880a4af7",
-    "sw.js": "77eec8497e1afd848f158637d80b66c140b65db11ac84022dca357530b4607e0",
+    "sw.js": "09f234a70c1560b57ef2f4c09d3f0285becdb423e962cd08f4e9f1e4353ab7cf",
     "vendor/Capacitor-LICENSE.txt": "9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd",
     "vendor/CapacitorSwiftPM-LICENSE.txt": "48f126b6311bd8e86b56bb3d2c5105a7999e9c348c2ceca7e60e397e7b5f41de",
     "vendor/Cordova-NOTICE.txt": "26a222224bcd2277143ea1317b55c3258b5748d3eee7e768ee89c0eff544cf6a",
@@ -205,7 +205,7 @@
     "voice-model/encoder.int8.onnx": "75653125bf3621d86a2b140ffd84a1c3b7610fc8cd49f2b6d70cf5786be0d085",
     "voice-model/grammar.json": "2ac0f0a3b717ca1b3b0dc77c9e00319af8013124dbe84275b5e38cf9b07d6936",
     "voice-model/joiner.int8.onnx": "a93e0afc2c82e94d366157b4a8b5f4cba6973ddea8f36ac94010b430be7823f1",
-    "RELEASE.json": "36d6f94d463e2d10a6e9c08c6de687ad1998c3a2c1d44101af02350d97ba46ab"
+    "RELEASE.json": "ed47367672be9584ddfadf137480a0f5f8a77dbac681efdbe7de7d605522f9c8"
   },
-  "bytes": 135056026
+  "bytes": 135063214
 }
