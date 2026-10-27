@@ -59,7 +59,7 @@ function play(it){
 }
 document.getElementById('copy').onclick=()=>{
   const lines=ITEMS.filter(it=>V[it.id]).map(it=>it.id+' '+(V[it.id]==='ok'?'чётко':'НЕРАЗБОРЧИВО')+' — '+it.say);
-  const t='Прослушивание 3.5.5: '+lines.length+'/'+ITEMS.length+'\n'+lines.join('\n');
+  const t='Прослушивание 3.6.0 (новые реплики): '+lines.length+'/'+ITEMS.length+'\n'+lines.join('\n');
   const ta=document.getElementById('report'); ta.hidden=false; ta.value=t;
   try{ navigator.clipboard.writeText(t).catch(()=>{ ta.select(); }); }catch(e){ ta.select(); }
 };
