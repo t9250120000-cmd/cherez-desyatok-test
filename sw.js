@@ -2,7 +2,7 @@
 // Установка кладёт в кэш лёгкое ядро (код, стили, картинки, словарь озвучки) — секунды даже на медленной сети.
 // Тяжёлые записи голоса (audio/*.mp3) докачиваются после активации порциями по сообщению страницы:
 // событие службы в Chrome живёт не дольше 5 минут, а 90+ МБ на медленной сети не успевают за одно событие.
-const VERSION = 'terem-shared-3.6.1-r1';
+const VERSION = 'terem-shared-3.6.1-r2';
 const FILES = [
   "./",
   "art/atlas-add.webp",
@@ -185,6 +185,7 @@ const FILES = [
   "js/sense-games-core.js",
   "js/sense-games.js",
   "js/sense-phrases.js",
+  "js/tap-guard.js",
   "js/voice-asr-core.js",
   "js/voice-asr-worker.js",
   "js/voice-asr.js",

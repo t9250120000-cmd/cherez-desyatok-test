@@ -367,7 +367,9 @@ function viewResult(){
   return h;
 }
 const ICON_SAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>';
-function view(){ return ({home:viewHome, intro:viewIntro, said:viewIntro, ir:viewIR, sprint:viewSprint, taped:viewTaped, flash:viewFlash, result:viewResult})[G.mode](); }
+/* Итоговый экран появляется на месте клавиатуры: второе касание двойного «Готово» не должно сразу нажать «На карту». */
+let resultAt=0;
+function view(){ if(G.mode==='result'){ if(!resultAt) resultAt=Date.now(); } else resultAt=0; return ({home:viewHome, intro:viewIntro, said:viewIntro, ir:viewIR, sprint:viewSprint, taped:viewTaped, flash:viewFlash, result:viewResult})[G.mode](); }
 
 /* кнопка входа для карты/острова/перерыва */
 function entry(kind){
@@ -400,6 +402,7 @@ Object.assign(EXT.acts,{
   factsSayProblem:()=>{ const q=G.queue[G.i]; if(q) say(FP.problem(q.f.o),{force:true}); }
 });
 $('#app').addEventListener('change', e=>{ const k=e.target.dataset&&e.target.dataset.fset; if(k){ settings()[k]=!!e.target.checked; store(); if(k==='noTimers'){ refreshHomeGameCopy(); if(e.target.checked) say(FP.ui.noTimers,{force:true}); } } });
+$('#app').addEventListener('click', e=>{ if(app().S.screen==='facts'&&G.mode==='result'&&resultAt&&Date.now()-resultAt<600&&e.target.closest('[data-act]')){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 $('#app').addEventListener('click', e=>{ const k=e.target.closest('[data-fk]'); if(k && app().S.screen==='facts'){ press(k.dataset.fk); } });
 document.addEventListener('keydown', e=>{
   if(app().S.screen!=='facts' || (e.target.closest && e.target.closest('input,textarea,summary'))) return;
