@@ -88,3 +88,11 @@ body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:56px}}
 .ins-note{font-size:13px}
 .ins-text{width:100%;min-height:140px;font-size:13px;margin-top:8px}
 @media(prefers-reduced-motion:reduce){.sense-games *,.focus-rest *{animation:none!important;transition:none!important}}
+
+/* барьер для взрослого и подтверждение покупки */
+.pg-card h2{margin:0;font-size:24px}.pg-card p{margin:0}
+.pg-q{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums}.pg-buf{display:inline-block;min-width:2.5ch;border-bottom:3px solid var(--ink)}
+.pg-msg{color:var(--danger,#B5462F);font-weight:800}
+.pg-keys{width:100%}.pg-keys .key{min-height:52px}
+/* невысокие экраны (390×844 и ниже): длинная инструкция не выталкивает клавиатуру за край */
+@media(max-height:860px){body[data-screen="task"] .instr p{font-size:20px;line-height:1.17}body[data-screen="task"] .frames:not(.single):not(.tap){--cell:48px}body[data-screen="task"] .frames:not(.single):not(.tap) .terem:nth-child(2){--cell:30px}body[data-screen="task"] .key{min-height:46px}}

@@ -3,7 +3,7 @@
   'use strict';
   const app=root.__app,ext=root.__ext,core=root.TEREM_FOUNDATIONS;
   if(!app||!ext||!core)return;
-  let session=null,paused=false;
+  let session=null,paused=false,wrongs=0;
   const base=new URL('../',document.currentScript.src);
   const berry='<span class="picnic-berry" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M11 15C6 24 16 40 24 43C32 40 42 24 37 15C32 9 16 9 11 15Z" fill="#C44258"/><path d="M24 16L11 10L21 9L24 3L27 9L37 10Z" fill="#376E4B"/><path d="M17 22L18 25M29 21L28 24M23 30L24 33" stroke="#FFF4D6" stroke-width="2.5" stroke-linecap="round"/></svg></span>';
   function hero(id){return id==='see'?'<img class="picnic-hero" src="'+new URL('art/companion/bulk-waiting.webp',base).href+'" alt="" draggable="false">':root.CH.pal(id,'picnic-hero','','neutral');}
@@ -38,7 +38,7 @@
     const action=b.dataset.picnic;
     if(action==='exit'){session=null;paused=false;app.go('map',{island:null});return;}
     if(action==='home'){session=null;paused=false;if(ext.acts.numberGames)ext.acts.numberGames();else paint();return;}
-    if(action==='small'||action==='large'){if(session)return;session=core.create(action);paint();return;}
+    if(action==='small'||action==='large'){if(session)return;session=core.create(action);wrongs=0;paint();return;}
     if(!session)return;
     if(action==='pause'){paused=true;root.AUDIO.stop();paint('[data-picnic="resume"]');return;}
     if(action==='resume'){paused=false;paint();return;}
@@ -47,6 +47,8 @@
     const before=session;
     session=core.reduce(session,{type:action,round:Number(b.dataset.round),index:Number(b.dataset.index),value:Number(b.dataset.value)});
     if(before===session)return;
+    if(action==='answer'&&session.phase==='count'&&session.message)wrongs++;
+    if(session.phase==='finish'&&before.phase!=='finish'&&root.__insights)root.__insights.logGame({game:'feed',level:session.level,rounds:session.results.length,errors:wrongs,supported:session.results.filter(r=>r.supported).length});
     root.AUDIO.stop();
     // Keep keyboard focus meaningful when the app replaces its DOM.
     const focus=session.phase==='success'?'[data-picnic="next"]':session.phase==='count'?'[data-picnic="answer"]':session.phase==='feed'?'[data-picnic="feed"][data-index="'+Math.max(0,session.fed.indexOf(false))+'"]':null;

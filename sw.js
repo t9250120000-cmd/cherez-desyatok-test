@@ -2,7 +2,7 @@
 // Установка кладёт в кэш лёгкое ядро (код, стили, картинки, словарь озвучки) — секунды даже на медленной сети.
 // Тяжёлые записи голоса (audio/*.mp3) докачиваются после активации порциями по сообщению страницы:
 // событие службы в Chrome живёт не дольше 5 минут, а 90+ МБ на медленной сети не успевают за одно событие.
-const VERSION = 'terem-shared-3.6.0-r3';
+const VERSION = 'terem-shared-3.6.1-r1';
 const FILES = [
   "./",
   "art/atlas-add.webp",
@@ -172,12 +172,14 @@ const FILES = [
   "js/foundations.js",
   "js/full-transfer-core.js",
   "js/full-transfer-ui.js",
+  "js/games-voice.js",
   "js/illustrated.js",
   "js/insights-core.js",
   "js/insights.js",
   "js/lesson-phrases.js",
   "js/number-games-core.js",
   "js/number-games.js",
+  "js/parent-gate.js",
   "js/phrases.js",
   "js/review.js",
   "js/sense-games-core.js",
@@ -192,6 +194,7 @@ const FILES = [
   "licenses.html",
   "manifest.webmanifest",
   "preview.html",
+  "privacy.html",
   "vendor/Capacitor-LICENSE.txt",
   "vendor/CapacitorSwiftPM-LICENSE.txt",
   "vendor/Cordova-NOTICE.txt",
@@ -254,7 +257,7 @@ const HASH = {
 "audio/denis-051.mp3": "92c09224a65c",
 "audio/denis-052.mp3": "58f7d6b383b2",
 "audio/denis-053.mp3": "9f5cb3bcf7c3",
-"audio/denis-360.mp3": "ac351daf451a",
+"audio/denis-360.mp3": "56e4acbc5d4e",
 "audio/facts.mp3": "f8a073968427",
 "audio/lesson.mp3": "cf242d3e3237",
 "audio/s00.mp3": "265ddc898142",

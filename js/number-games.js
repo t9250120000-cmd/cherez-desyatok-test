@@ -4,7 +4,9 @@
   const app=root.__app,ext=root.__ext,C=root.TEREM_NUMBER_GAMES;
   if(!app||!ext||!C)return;
   const base=new URL('../',document.currentScript.src),asset=p=>new URL(p,base).href;
-  let selectedGame=null,state=null,paused=false;
+  let selectedGame=null,state=null,paused=false,wrongs=0;
+  // Итог серии — в наблюдения для родителя (если модуль наблюдений подключён). Награды не меняются.
+  function logFinish(){if(!state||state.phase!=='finish'||!root.__insights)return;root.__insights.logGame({game:state.game,level:state.level,rounds:state.results.length,errors:wrongs,supported:state.results.filter(r=>r.supported).length});}
   const names={left:'Слева',right:'Справа',equal:'Поровну'};
   const berry='<svg class="ng-berry" viewBox="0 0 48 48" aria-hidden="true"><path d="M11 15C6 24 16 40 24 43C32 40 42 24 37 15C32 9 16 9 11 15Z" fill="#C44258"/><path d="M24 16L11 10L21 9L24 3L27 9L37 10Z" fill="#376E4B"/><path d="M17 22L18 25M29 21L28 24M23 30L24 33" stroke="#FFF4D6" stroke-width="2.5" stroke-linecap="round"/></svg>';
   function hero(id){return id==='see'?'<img class="ng-hero" src="'+asset('art/companion/bulk-waiting.webp')+'" alt="" draggable="false">':root.CH.pal(id,'ng-hero','','neutral');}
@@ -56,7 +58,7 @@
     }
     if(action==='first'||action==='nextLevel'||action==='again'){
       if(!selectedGame||state&&state.phase!=='finish')return;
-      state=C.create(selectedGame,action==='again'?state.level:action==='first'?'first':'next');paused=false;paint();return;
+      state=C.create(selectedGame,action==='again'?state.level:action==='first'?'first':'next');paused=false;wrongs=0;paint();return;
     }
     if(!state)return;
     if(action==='pause'){paused=true;root.AUDIO.stop();paint('[data-ng="resume"]');return;}
@@ -66,6 +68,8 @@
     const prev=state;
     state=C.reduce(state,{type:action,round:Number(b.dataset.round),index:Number(b.dataset.index),value:state.game==='compare'?b.dataset.value:Number(b.dataset.value)});
     if(state===prev)return;
+    if((action==='answer'||action==='check')&&state.phase==='play'&&state.message)wrongs++;
+    if(state.phase==='finish'&&prev.phase!=='finish')logFinish();
     root.AUDIO.stop();
     const focus=state.phase==='success'?'[data-ng="next"]':action==='toggle'?'[data-ng="toggle"][data-index="'+b.dataset.index+'"]':action==='place'?(state.selected.length===state.task.answer?'[data-ng="answer"]':'[data-ng="place"]:not(:disabled)'):action==='help'?'[data-ng="help"]':action==='answer'?'[data-ng="answer"]':null;
     paint(focus);
