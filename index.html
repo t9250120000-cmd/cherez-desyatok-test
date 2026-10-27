@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="application-version" content="3.6.1">
+<meta name="application-version" content="3.6.2">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Через десяток</title>
 <meta name="description" content="Сказочный тренажёр сложения и вычитания через десяток для детей">
@@ -29,6 +29,7 @@
 </head>
 <body>
 <main class="wrap"><div id="app"></div></main>
+<script src="js/fit.js" defer></script>
 <script src="js/phrases.js"></script>
 <script src="js/chars.js"></script>
 <script src="js/world.js"></script>
@@ -59,6 +60,8 @@
 <script src="js/tap-guard.js"></script>
 <script src="js/focus-mode.js"></script>
 <script src="js/parent-gate.js"></script>
+<script src="js/daily-core.js"></script>
+<script src="js/daily.js"></script>
 <script>if('serviceWorker' in navigator && location.protocol!=='capacitor:'){ window.addEventListener('load', ()=>{
   navigator.serviceWorker.register('sw.js').catch(()=>{});
   // докачка записей голоса для работы без сети: порциями, пока остаются файлы и есть продвижение

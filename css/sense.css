@@ -70,14 +70,14 @@ body[data-screen="senseGames"] #app>.topbar{display:none}
 /* «Спокойный фокус»: крупнее, тише, без лишнего */
 body.focus-calm *{animation-iteration-count:1!important}
 body.focus-calm .task-buddy{display:none!important}
-@media(min-height:900px){body.focus-calm .frames{--cell:56px}
-body.focus-calm .frames .terem:nth-child(2){--cell:38px}
-body.focus-calm .frames.single{--cell:clamp(56px,15vw,66px)}
-body.focus-calm .frames.tap{--cell:54px}
-body.focus-calm .frames.tap .terem[data-interactive="false"]{--cell:44px}
-body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:56px}}
-@media(min-height:900px) and (max-width:370px){body.focus-calm .frames{--cell:52px}body.focus-calm .frames .terem:nth-child(2){--cell:40px}body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:50px}}
-@media(min-height:900px){body.focus-calm[data-screen="task"] .example{font-size:34px}body.focus-calm .key:not(.go):not(.del){min-height:56px;font-size:29px}}
+body.focus-calm:not(.fit-short) .frames{--cell:56px}
+body.focus-calm:not(.fit-short) .frames .terem:nth-child(2){--cell:38px}
+body.focus-calm:not(.fit-short) .frames.single{--cell:clamp(56px,15vw,66px)}
+body.focus-calm:not(.fit-short) .frames.tap{--cell:54px}
+body.focus-calm:not(.fit-short) .frames.tap .terem[data-interactive="false"]{--cell:44px}
+body.focus-calm:not(.fit-short) .frames.tap .terem[data-interactive="true"]{--cell:56px}
+@media(max-width:370px){body.focus-calm:not(.fit-short) .frames{--cell:52px}body.focus-calm:not(.fit-short) .frames .terem:nth-child(2){--cell:40px}body.focus-calm:not(.fit-short) .frames.tap .terem[data-interactive="true"]{--cell:50px}}
+body.focus-calm:not(.fit-short)[data-screen="task"] .example{font-size:34px}body.focus-calm:not(.fit-short) .key:not(.go):not(.del){min-height:56px;font-size:29px}
 
 /* отчёт родителю */
 .ins-report{margin-top:8px}
@@ -95,4 +95,28 @@ body.focus-calm .frames.tap .terem[data-interactive="true"]{--cell:56px}}
 .pg-msg{color:var(--danger,#B5462F);font-weight:800}
 .pg-keys{width:100%}.pg-keys .key{min-height:52px}
 /* невысокие экраны (390×844 и ниже): длинная инструкция не выталкивает клавиатуру за край */
-@media(max-height:860px){body[data-screen="task"] .instr p{font-size:20px;line-height:1.17}body[data-screen="task"] .frames:not(.single):not(.tap){--cell:48px}body[data-screen="task"] .frames:not(.single):not(.tap) .terem:nth-child(2){--cell:30px}body[data-screen="task"] .key{min-height:46px}}
+body.fit-short[data-screen="task"] .instr p{font-size:20px;line-height:1.17}
+body.fit-short[data-screen="task"] .frames:not(.single):not(.tap){--cell:48px}
+body.fit-short[data-screen="task"] .frames:not(.single):not(.tap) .terem:nth-child(2){--cell:30px}
+body.fit-short[data-screen="task"] .key{min-height:46px}
+/* очень невысокие экраны: компактнее заголовок и пример, теремки меньше, клавиши не ниже 44 px */
+body.fit-tiny[data-screen="task"] .instr p{font-size:18px}
+body.fit-tiny[data-screen="task"] .example{font-size:26px}
+body.fit-tiny[data-screen="task"] .frames:not(.single):not(.tap){--cell:42px}
+body.fit-tiny[data-screen="task"] .frames:not(.single):not(.tap) .terem:nth-child(2){--cell:26px}
+body.fit-tiny[data-screen="task"] .frames.tap{--cell:42px}
+body.fit-tiny[data-screen="task"] .frames.tap .terem[data-interactive="false"]{--cell:30px}
+body.fit-tiny[data-screen="task"] .frames.tap .terem[data-interactive="true"]{--cell:48px}
+body.fit-tiny[data-screen="task"] .frames.single{--cell:48px}
+body.fit-tiny[data-screen="task"] .key{min-height:44px}
+
+/* дневная норма: шкала на карте */
+.daily-chip{position:absolute;z-index:6;left:max(12px,env(safe-area-inset-left));top:calc(max(12px,env(safe-area-inset-top)) + 96px);display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;background:var(--card);color:var(--ink);box-shadow:var(--shadow);font:800 14px/1 var(--f-body);pointer-events:none}
+.daily-chip svg{width:30px;height:30px;transform:rotate(-90deg)}.daily-chip .bg{fill:none;stroke:var(--line);stroke-width:4}.daily-chip .fg{fill:none;stroke:var(--ok);stroke-width:4;stroke-linecap:round}
+.daily-chip b{font-size:17px}.daily-chip.done{background:var(--hl)}
+
+/* отчёт родителям: список получателей */
+.rep-list{list-style:none;margin:8px 0 12px;padding:0;display:flex;flex-direction:column;gap:8px}
+.rep-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:16px;background:var(--soft,#f6efe4)}
+.rep-list li span{display:flex;flex-direction:column;min-width:0}.rep-list li b{overflow-wrap:anywhere}.rep-list li small{opacity:.7;font-size:13px}
+.rep-link{display:block;margin-top:4px;font-family:ui-monospace,Menlo,monospace;font-size:13px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
