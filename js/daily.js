@@ -4,8 +4,8 @@
   'use strict';
   const app=root.__app,ext=root.__ext,D=root.TEREM_DAILY;
   if(!app||!ext||!D)return;
-  // Адрес облачной функции и имя бота заполняются после развёртывания (docs/PARENT-REPORT.md). Пусто — отчёты выключены.
-  const REPORT={endpoint:'',bot:''};
+  // Адрес облачной функции (docs/PARENT-REPORT.md). Пусто — отчёты выключены. Имя бота можно не указывать: игра спросит его у функции.
+  const REPORT={endpoint:'https://functions.yandexcloud.net/d4e62636vfmgoor9i0bp',bot:''};
   const KEY='terem_daily_v1',TICK=1000;
   let ST;try{ST=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){ST=null;}
   if(!ST||ST.v!==1||typeof ST!=='object')ST={v:1,settings:{},days:{},report:{}};
@@ -120,8 +120,8 @@
         h+='<p class="muted">Итог дня по игроку «'+esc(p.name)+'» приходит сам: когда игру свернули или закрыли, после 10 минут без занятий и при выполнении нормы. Получает каждый подключённый Telegram.</p><ul class="rep-list">'+
           list.map((c,i)=>'<li><span><b>'+esc(c.who||('Получатель '+(i+1)))+'</b><small>с '+new Date(c.since).toLocaleDateString('ru-RU')+'</small></span><button type="button" class="btn ghost small" data-act="repOff" data-id="'+i+'" aria-label="Отключить '+esc(c.who||('получателя '+(i+1)))+'">Отключить</button></li>').join('')+'</ul>';
       }
-      if(mine)h+='<p class="muted">Откройте Telegram'+(list.length?' на телефоне второго родителя':'')+' и нажмите «Запустить» (Start) у бота. Игра ждёт подтверждения…</p><div class="row2"><a class="btn small" href="https://t.me/'+esc(REPORT.bot)+'?start='+esc(pairing.nonce)+'" target="_blank" rel="noopener">Открыть Telegram</a><button type="button" class="btn ghost small" data-act="repCancel">Отмена</button></div>'+
-        (list.length?'<p class="muted">Телефон второго родителя не рядом? Отправьте ему эту ссылку (действует 10 минут, на одно подключение) — достаточно открыть её и нажать «Запустить»: <span class="rep-link">t.me/'+esc(REPORT.bot)+'?start='+esc(pairing.nonce)+'</span></p><button type="button" class="btn ghost small" data-act="repShare">Поделиться ссылкой</button>':'')+'<p class="muted" role="status">'+esc(pairing.msg||'')+'</p>';
+      if(mine)h+='<p class="muted">Откройте Telegram'+(list.length?' на телефоне второго родителя':'')+' и нажмите «Запустить» (Start) у бота. Игра ждёт подтверждения…</p><div class="row2"><a class="btn small" href="'+(pairing.bot?'https://t.me/'+esc(pairing.bot)+'?start='+esc(pairing.nonce):'#')+'"'+(pairing.bot?'':' aria-disabled="true" style="opacity:.5;pointer-events:none"')+' target="_blank" rel="noopener">Открыть Telegram</a><button type="button" class="btn ghost small" data-act="repCancel">Отмена</button></div>'+
+        (list.length?'<p class="muted">Телефон второго родителя не рядом? Отправьте ему эту ссылку (действует 10 минут, на одно подключение) — достаточно открыть её и нажать «Запустить»: <span class="rep-link">'+(pairing.bot?'t.me/'+esc(pairing.bot)+'?start='+esc(pairing.nonce):'…')+'</span></p><button type="button" class="btn ghost small" data-act="repShare">Поделиться ссылкой</button>':'')+'<p class="muted" role="status">'+esc(pairing.msg||'')+'</p>';
       else if(list.length){
         h+='<div class="row2"><button type="button" class="btn ghost small" data-act="repSend">Отправить итог сейчас</button>'+(list.length<MAX_CHATS?'<button type="button" class="btn ghost small" data-act="repPair">Добавить ещё родителя</button>':'')+'</div>';
       }
@@ -152,8 +152,17 @@
     }catch(e){pr.msg='Нет связи с сервером. Проверьте интернет.';}
     setTimeout(poll,Date.now()-pr.at<180000?3000:8000);
   }
-  ext.acts.repPair=()=>{const p=app.P();if(!p||chats(p.id).length>=MAX_CHATS)return;pairing={nonce:rnd(),pid:p.id,at:Date.now(),msg:''};app.render();setTimeout(poll,3000);};
-  ext.acts.repShare=async()=>{if(!pairing)return;const url='https://t.me/'+REPORT.bot+'?start='+pairing.nonce,text='Подключи отчёты «Через десяток»: открой ссылку и нажми «Запустить»';
+  let botName=REPORT.bot;
+  async function bot(){
+    if(botName)return botName;
+    try{const j=await (await fetch(REPORT.endpoint,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'bot'})})).json();if(j&&/^[A-Za-z0-9_]{5,64}$/.test(j.bot||''))botName=j.bot;}catch(e){}
+    return botName;
+  }
+  ext.acts.repPair=async()=>{const p=app.P();if(!p||chats(p.id).length>=MAX_CHATS)return;const pr={nonce:rnd(),pid:p.id,at:Date.now(),msg:'Подключаемся…',bot:botName};pairing=pr;app.render();
+    if(!pr.bot){pr.bot=await bot();if(pairing!==pr)return;}
+    pr.msg=pr.bot?'':'Сервис отчётов сейчас недоступен. Проверьте интернет и попробуйте позже.';
+    if(app.S.screen==='parent')app.render();if(pr.bot)setTimeout(poll,3000);};
+  ext.acts.repShare=async()=>{if(!pairing)return;if(!pairing.bot)return;const url='https://t.me/'+pairing.bot+'?start='+pairing.nonce,text='Подключи отчёты «Через десяток»: открой ссылку и нажми «Запустить»';
     try{if(navigator.share){await navigator.share({title:'Через десяток',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
     try{await navigator.clipboard.writeText(url);app.toast('Ссылка скопирована.');}catch(e){app.toast('Скопируйте ссылку вручную.');}};
   ext.acts.repCancel=()=>{pairing=null;app.render();};
