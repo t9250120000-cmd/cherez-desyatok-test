@@ -2,15 +2,17 @@
    Без таймеров, звёзд и монеток; результат пишется только в наблюдения для родителя. */
 (function(root){
   'use strict';
-  const app=root.__app,ext=root.__ext,C=root.TEREM_SENSE;
-  if(!app||!ext||!C)return;
+  const app=root.__app,ext=root.__ext,C=root.TEREM_SENSE,SP=root.SP360;
+  if(!app||!ext||!C||!SP)return;
+  const speak=(ph,opt)=>SP.speak(ph,opt);
+  const msg=(group,key)=>key&&SP[group][key]?SP[group][key].text:'';
   const base=new URL('../',document.currentScript.src),asset=p=>new URL(p,base).href;
   let game=null,s=null,paused=false,logged=false;
   const rng=()=>Math.random();
   const focus=()=>!!(root.__focus&&root.__focus.active());
   const INFO={
-    race:{name:'Слаймовая дорожка',skill:'Числа по порядку 0–20',intro:'Бросай кубик и угадай, на какую клетку прыгнет твой слаймик. Кто первым доберётся до конца — Бульк или ты?',levels:[['ten','Дорожка до 10 · кубик 1–3'],['twenty','Дорожка до 20 · кубик 1–6']]},
-    triple:{name:'Собери тройку',skill:'Цифра, слово, количество',intro:'Одно число можно написать цифрой, сказать словом и показать слаймиками. Найди всю тройку.',levels:[['small','Числа 1–10'],['teen','Числа 11–20']]}
+    race:{name:'Слаймовая дорожка',skill:'Числа по порядку 0–20',intro:SP.race.intro.text,levels:[['ten','Дорожка до 10 · кубик 1–3'],['twenty','Дорожка до 20 · кубик 1–6']]},
+    triple:{name:'Собери тройку',skill:'Цифра, слово, количество',intro:SP.triple.intro.text,levels:[['small','Числа 1–10'],['teen','Числа 11–20']]}
   };
   function btn(action,text,secondary,attrs){return '<button type="button" class="ng-button'+(secondary?' ng-secondary':'')+'" data-sg="'+action+'" '+(attrs||'')+'>'+text+'</button>';}
   function hero(){return '<img class="ng-hero" src="'+asset('art/companion/bulk-waiting.webp')+'" alt="" draggable="false">';}
@@ -33,7 +35,7 @@
   }
   function view(){
     if(!game)return shell('');
-    if(paused)return shell('<div class="ng-intro">'+hero()+'<h1 id="ng-title">Отдыхаем</h1><p>Встань, потянись.<br>Игра тебя подождёт.</p>'+btn('resume','Продолжить')+'</div>');
+    if(paused)return shell('<div class="ng-intro">'+hero()+'<h1 id="ng-title">Отдыхаем</h1><p>'+SP.rest.game.text+'</p>'+btn('resume','Продолжить')+'</div>');
     if(!s)return shell(intro());
     return shell(game==='race'?raceView():tripleView());
   }
@@ -63,7 +65,7 @@
     return '<header class="ng-heading"><h1 id="ng-title">'+title+'</h1><p>'+desc+'</p></header>'+
       '<div class="sg-race-top"><span class="sg-score"><span class="sg-tok you" aria-hidden="true">'+root.CH.pal('avatar','','','happy',P.color)+'</span>'+esc(P.name)+': <b>'+s.you+'</b></span>'+(s.die&&s.phase==='move'?pips(s.die):'')+'<span class="sg-score"><img class="sg-tok bulk" src="'+asset('art/companion/bulk-waiting.webp')+'" alt="" draggable="false">Бульк: <b>'+s.bulk+'</b></span></div>'+
       board()+bl+(hint&&hint.cross?'<div class="ng-path-help">'+s.you+' <span>+'+hint.cross.toTen+' →</span> 10 <span>+'+hint.cross.rest+' →</span> '+s.target+'</div>':'')+
-      '<p class="ng-feedback" role="status">'+s.message+'</p><div class="ng-controls">'+controls+'</div>';
+      '<p class="ng-feedback" role="status">'+msg('race',s.msgKey)+'</p><div class="ng-controls">'+controls+'</div>';
   }
 
   /* ---------- Собери тройку ---------- */
@@ -79,14 +81,14 @@
       '<div class="sg-given">'+face(t.given,t.n,'big'+(s.help&&t.given!=='picture'?'':''))+btn('listen','Послушать число',true)+'</div>'+
       (s.help&&t.given!=='picture'&&!ok?'<div class="sg-helpcard">'+picture(t.n)+'</div>':'')+
       (ok?'<p class="ng-solution">'+t.n+' = '+C.WORDS[t.n]+'</p>':rows)+
-      '<p class="ng-feedback" role="status">'+s.message+'</p><div class="ng-controls">'+(ok?btn('next',s.round===total-1?'Завершить':'Следующее число',false,'data-round="'+s.round+'"'):btn('help','Подсказка',true,'data-round="'+s.round+'"'))+'</div>';
+      '<p class="ng-feedback" role="status">'+msg('triple',s.msgKey)+'</p><div class="ng-controls">'+(ok?btn('next',s.round===total-1?'Завершить':'Следующее число',false,'data-round="'+s.round+'"'):btn('help','Подсказка',true,'data-round="'+s.round+'"'))+'</div>';
   }
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function paint(focusSel){app.render();if(focusSel){const el=document.querySelector(focusSel);if(el)el.focus({preventScroll:true});}}
   function log(){if(logged||!s||s.phase!=='finish')return;logged=true;const r=game==='race'?C.raceResult(s):C.tripleResult(s);if(root.__insights)root.__insights.logGame(r);}
-  function start(level){s=game==='race'?C.raceCreate(level):C.tripleCreate(level,rng,focus()?3:5);logged=false;paused=false;paint(game==='race'?'[data-sg="roll"]':null);}
-  function open(id){game=id;s=null;paused=false;app.go('senseGames',{island:null});}
+  function start(level){s=game==='race'?C.raceCreate(level):C.tripleCreate(level,rng,focus()?3:5);logged=false;paused=false;root.AUDIO.stop();speak(game==='race'?SP.race.roll:SP.triple.task);paint(game==='race'?'[data-sg="roll"]':null);}
+  function open(id){game=id;s=null;paused=false;app.go('senseGames',{island:null});speak(INFO[id]&&SP[id].intro);}
   function praise(){const ph=root.PH&&root.PH.praise;if(ph&&ph.length)root.AUDIO.say(ph[Math.floor(Math.random()*ph.length)]);}
 
   ext.views.senseGames=view;
@@ -108,7 +110,7 @@
     if(action==='level'){if(s)return;start(b.dataset.level);return;}
     if(action==='again'){if(!s||s.phase!=='finish')return;start(s.level);return;}
     if(!s)return;
-    if(action==='pause'){paused=true;root.AUDIO.stop();paint('[data-sg="resume"]');return;}
+    if(action==='pause'){paused=true;root.AUDIO.stop();speak(SP.rest.game);paint('[data-sg="resume"]');return;}
     if(action==='resume'){paused=false;paint();return;}
     if(paused)return;
     const prev=s;
@@ -116,8 +118,11 @@
       s=C.raceReduce(s,{type:action,value:Number(b.dataset.value)},rng);
       if(s===prev)return;
       root.AUDIO.stop();
-      if(action==='cell'&&s.you!==prev.you){root.AUDIO.say(root.FP.answer(s.you),{onend:()=>{if(s&&s.phase==='finish'&&s.winner==='you')praise();}});}
-      if(action==='bulk'&&root.FP)root.AUDIO.say(root.FP.answer(s.bulk));
+      const cur=s;
+      if(action==='roll')speak(SP.race.move);
+      else if(action==='help'||action==='cell'&&s.you===prev.you)speak(SP.race[s.msgKey]);
+      else if(action==='cell')root.AUDIO.say(root.FP.answer(s.you),{onend:()=>{if(s!==cur)return;if(s.phase==='finish')speak(SP.race.win,{onend:()=>{}});else speak(SP.race.bulk);}});
+      else if(action==='bulk')root.AUDIO.say(root.FP.answer(s.bulk),{onend:()=>{if(s!==cur)return;speak(s.phase==='finish'?SP.race.lose:SP.race.roll);}});
       log();
       paint(s.phase==='move'?(s.help?'.sg-cell.hop':'[data-sg="help"]'):s.phase==='bulk'?'[data-sg="bulk"]':s.phase==='roll'?'[data-sg="roll"]':'[data-sg="again"]');
       return;
@@ -126,7 +131,8 @@
     s=C.tripleReduce(s,{type:action,round:Number(b.dataset.round),kind:b.dataset.kind,value:Number(b.dataset.value)});
     if(s===prev)return;
     root.AUDIO.stop();
-    if(s.phase==='success')praise();
+    if(s.phase==='success')speak(SP.triple.done,{onend:()=>{}})||praise();
+    else if(s.msgKey)speak(SP.triple[s.msgKey]);
     log();
     paint(s.phase==='success'?'[data-sg="next"]':s.phase==='finish'?'[data-sg="again"]':action==='help'?'[data-sg="listen"]':null);
   });

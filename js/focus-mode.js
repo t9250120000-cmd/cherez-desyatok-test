@@ -65,6 +65,7 @@
     t.clean=false;                       // подсказка — помощь: как и после ошибки, задание вернётся позже
     if(root.__insights)root.__insights.markNumberLine(t);else (t._ins=t._ins||{wr:{},nl:0,ex:0}).nl=1;
     app.render();
+    if(root.SP360)root.SP360.speak(root.SP360.line,{force:true});
   };
 
   /* ---------- перерыв при усталости ---------- */
@@ -82,7 +83,9 @@
       '<button type="button" class="btn" data-rest="continue">Размялись — продолжаем</button><button type="button" class="btn ghost" data-rest="stop">На сегодня хватит</button></div>';
     document.body.appendChild(overlay);
     overlay.querySelector('[data-rest="continue"]').focus({preventScroll:true});
-    if(mv)setTimeout(()=>{if(overlay)root.AUDIO.say(mv,{force:true});},reason==='pause'?0:1600);
+    const SP=root.SP360,intro=SP&&SP.rest[reason==='pause'?'pause':'errors'];
+    const sayMove=()=>{if(overlay&&mv)root.AUDIO.say(mv,{force:true});};
+    setTimeout(()=>{if(!overlay)return;if(!(SP&&SP.speak(intro,{force:true,onend:sayMove})))sayMove();},reason==='pause'?0:1600);
   }
   function closeOverlay(log,choice){
     if(!overlay)return;const reason=overlay.dataset.reason;overlay.remove();overlay=null;lastInput=Date.now();

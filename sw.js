@@ -2,7 +2,7 @@
 // Установка кладёт в кэш лёгкое ядро (код, стили, картинки, словарь озвучки) — секунды даже на медленной сети.
 // Тяжёлые записи голоса (audio/*.mp3) докачиваются после активации порциями по сообщению страницы:
 // событие службы в Chrome живёт не дольше 5 минут, а 90+ МБ на медленной сети не успевают за одно событие.
-const VERSION = 'terem-shared-3.6.0-r2';
+const VERSION = 'terem-shared-3.6.0-r3';
 const FILES = [
   "./",
   "art/atlas-add.webp",
@@ -78,6 +78,8 @@ const FILES = [
   "audio/denis-051.mp3",
   "audio/denis-052.mp3",
   "audio/denis-053.mp3",
+  "audio/denis-360-sprites.json",
+  "audio/denis-360.mp3",
   "audio/denis-sprites.json",
   "audio/facts-sprites.json",
   "audio/facts.mp3",
@@ -180,6 +182,7 @@ const FILES = [
   "js/review.js",
   "js/sense-games-core.js",
   "js/sense-games.js",
+  "js/sense-phrases.js",
   "js/voice-asr-core.js",
   "js/voice-asr-worker.js",
   "js/voice-asr.js",
@@ -251,6 +254,7 @@ const HASH = {
 "audio/denis-051.mp3": "92c09224a65c",
 "audio/denis-052.mp3": "58f7d6b383b2",
 "audio/denis-053.mp3": "9f5cb3bcf7c3",
+"audio/denis-360.mp3": "ac351daf451a",
 "audio/facts.mp3": "f8a073968427",
 "audio/lesson.mp3": "cf242d3e3237",
 "audio/s00.mp3": "265ddc898142",
