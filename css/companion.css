@@ -151,8 +151,9 @@ body.jelly-entry .np-fork-art,body.jelly-yard .np-fork-art{display:block;width:1
 .jelly-seat .np-table .ng-button{min-height:44px}
 .jelly-seat .np-sum{margin:0}
 .jelly-seat .ng-intro>.ng-hero{display:none}
-.forest-frame{position:relative;width:100%;max-height:120px;aspect-ratio:4/5;overflow:hidden;border-radius:12px}
-.forest-plate{display:block;width:100%;height:100%;object-fit:cover;object-position:center 42%}
+.forest-frame{position:relative;width:100%;height:120px;overflow:hidden;border-radius:12px}
+.forest-stage{position:absolute;left:0;width:100%;aspect-ratio:4/5;top:42%;transform:translateY(-42%)}
+.forest-plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .forest-acting{position:absolute;inset:0;pointer-events:none;mask-image:linear-gradient(to bottom,transparent 20%,#000 25% 75%,transparent 80%)}
 .forest-pose{position:absolute;top:19.972%;height:60.2%;opacity:0;transition:opacity 110ms ease-in-out}
 .forest-pose-a{left:0;width:50.089%;mask-image:linear-gradient(to right,#000 96%,transparent)}
