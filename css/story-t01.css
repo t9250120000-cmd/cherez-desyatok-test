@@ -1,0 +1,169 @@
+/* «Большой день» — глава T01 (js/story-t01.js). Статика: анимаций нет,
+   reduced motion компенсировать нечего. Токены темы — из illustrated.css. */
+.story-wrap{max-width:640px;margin:0 auto}
+.story-kicker{margin:0 0 4px;color:var(--muted);font-weight:700;font-size:.85em;letter-spacing:.02em;text-transform:uppercase}
+.story-hero{display:flex;justify-content:center}
+.story-hero .pal{width:96px;height:96px}
+.story-wrap h1{margin:6px 0 8px;font-size:1.5em;line-height:1.2}
+.story-say{margin:0 0 10px;font-size:1.05em}
+.story-next{margin:10px 0 0;padding:10px 14px;border:2px dashed var(--line);border-radius:12px;color:var(--muted)}
+.story-list{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.story-ep{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:10px 14px;background:var(--card);border:2px solid var(--line);border-radius:14px}
+.story-ep.done{flex-direction:column;align-items:stretch;border-color:var(--soft);background:var(--soft)}
+.story-ep.done .btn{align-self:flex-start;max-width:100%;white-space:normal}
+.story-wrap .story-drop-txt span{white-space:normal}
+.story-ep-txt{flex:1;min-width:0}
+.story-ep-txt p{margin:2px 0 0;color:var(--muted);font-size:.95em}
+.story-ep-txt .story-state{margin-top:6px}
+.story-state{margin:6px 0 0;color:var(--muted);font-size:.95em}
+.story-state.ok{color:var(--ink);font-weight:700}
+.story-wrap .btn{min-height:44px}
+.story-arrival{margin:0 0 8px}
+.story-arrival .story-drop{flex:1 1 30%;flex-direction:column;align-items:flex-start;font-weight:700}
+.story-rows{display:flex;flex-direction:column;gap:4px}
+.story-row{display:flex;flex-wrap:nowrap;gap:3px}
+.story-finale{display:flex;flex-direction:column;gap:8px;margin:8px 0;width:100%}
+.story-finale .story-tables{display:flex;flex-wrap:wrap;gap:8px}
+.story-finale .story-table{flex:1 1 140px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;padding:8px;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.story-finale .pal{width:64px;height:64px}
+.story-finale .pal svg{display:block;width:100%;height:100%}
+.story-finale .story-board{display:block;width:100%;padding:6px;border-radius:10px 10px 6px 6px;background:var(--soft);box-shadow:inset 0 -6px 0 var(--line)}
+.story-finale .story-piece.treat{width:16px;height:14px;border-radius:3px 3px 8px 8px;background:var(--cb);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
+.story-finale .story-piece.who{width:14px;height:16px;border-radius:50% 50% 6px 6px;background:var(--ca);box-shadow:inset 0 5px 0 var(--cb)}
+.story-finale .story-piece.free{width:14px;height:16px;border-radius:4px;background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.story-finale.meadow{position:relative;display:flex;flex-direction:column;gap:6px;margin:0;padding:0;background:transparent;border:0;box-shadow:none;animation:none}
+.fest-place{position:relative;display:block;width:100%;height:auto;margin:0 -12px;overflow:hidden;border-radius:0}
+.fest-place img{display:block;width:100%;height:auto;max-width:100%}
+.fest-place::after{content:"";position:absolute;left:8%;right:8%;bottom:0;height:14px;border-radius:8px 8px 3px 3px;background:linear-gradient(#E7C89A,#8A5A32);z-index:1;box-shadow:0 5px 0 rgba(30,20,40,.28)}
+.fest-stand{position:absolute;z-index:2;bottom:12px;filter:drop-shadow(0 6px 0 rgba(30,20,40,.35))}
+.fest-stand.mage{right:4%;bottom:12px}
+.fest-stand.mage .pal{width:88px;height:88px}
+.fest-stand.bulk{left:6%;bottom:12px}
+.fest-stand.king{left:30%;bottom:14px}
+.fest-stand.bulk .pal,.fest-stand.king .pal{width:64px;height:64px}
+.fest-table{position:relative;display:flex;gap:8px;margin-top:10px;padding:8px 8px 10px;border-radius:8px 8px 4px 4px;background:#F4E7CF;border:0;box-shadow:inset 0 0 0 3px #C4A574, 0 10px 0 #8A5A32}
+.fest-leg{position:absolute;bottom:-12px;left:14px;width:8px;height:12px;background:#6B3E22}
+.fest-leg.r{left:auto;right:14px}
+.fest-half{flex:1;min-width:0}
+.fest-half b{display:block;font-size:14px}
+.fest-num{font-size:20px}
+.fest-plate{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;padding:4px;border-radius:40px;background:#FFF9F0;box-shadow:inset 0 0 0 2px #E4D2B4}
+.story-finale .story-piece.treat{width:16px;height:12px;background:none;box-shadow:none;border-radius:0}
+.story-finale .story-piece.treat svg{display:block;width:22px;height:16px}
+.fest-bench{margin-top:14px;padding:4px 0 0;background:transparent;border:0}
+.fest-bench .pal{width:22px;height:22px}
+.story-finale .story-piece.who{width:auto;height:auto;background:none;box-shadow:none}
+.story-finale .story-piece.free{width:16px;height:16px;border-radius:4px;background:#F7E7C4;box-shadow:inset 0 0 0 2px #6B3E22}
+.fest-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.fest-archive summary{min-height:44px}
+body:not(.map-bg):not([data-screen="task"]):has(.fest-place) .wrap{max-width:880px}
+@media (min-width:720px){
+  .story-wrap:has(.fest-place){max-width:860px}
+  .fest-place{height:220px}
+  .fest-place img{height:100%;object-fit:cover;object-position:center 34%}
+  .story-finale.meadow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);column-gap:16px;align-items:start}
+  .fest-place,.fest-sr{grid-column:1/-1}
+  .fest-bench{margin-top:10px}
+  .fest-stand .pal{width:100px;height:100px}
+  .fest-stand.bulk .pal,.fest-stand.king .pal{width:84px;height:84px}
+}
+@media (prefers-reduced-motion:reduce){.story-finale.meadow{animation:none}}
+.story-ep .btn{flex-shrink:0}
+@media (max-width:380px){
+  .story-ep{flex-wrap:wrap}
+  .story-ep .btn,.story-list .btn{white-space:normal;min-height:44px;max-width:100%}
+}
+.story-badge{margin:10px 0 0;font-weight:700;color:var(--ink)}
+.story-chip{margin:10px auto 0;max-width:640px;text-align:center;color:var(--muted)}
+.story-chip.ok{font-weight:700;color:var(--ink)}
+.story-chip .btn{min-height:44px}
+/* Единый чип кампании на карте (координатор js/story-t01.js рисует не более
+   одного). Регрессия 320×844: отдельные absolute-чипы глав нарастали поверх
+   карты и закрывали заголовок, профиль, статистику и острова. Теперь чип —
+   fixed-полоса прямо под шапкой, а карта (.mapwrap) опускается через :has(),
+   освобождая место; нарастания с будущими главами нет по построению. */
+body:has(.mapwrap .story-chip) .mapwrap{top:calc(max(14px,env(safe-area-inset-top)) + 126px)}
+.mapwrap .story-chip{position:fixed;z-index:7;top:calc(max(14px,env(safe-area-inset-top)) + 70px);left:50%;transform:translateX(-50%);margin:0;display:flex;align-items:center;gap:8px;max-width:min(92vw,340px);padding:4px 6px 4px 12px;border-radius:999px;background:var(--card);color:var(--ink);box-shadow:var(--shadow);font-size:13px;white-space:nowrap}
+.mapwrap .story-chip.ok{padding:10px 16px;font-weight:700}
+/* Места площадки T04 внутри уже занятой полосы чипа, не новый слой на островах. */
+.story-yard{display:inline-flex;flex-wrap:wrap;gap:2px;align-items:center;max-width:220px;margin-left:8px;vertical-align:middle}
+.story-seat{width:8px;height:8px;border-radius:2px;background:var(--ok);flex:none}
+.story-yard b{margin-left:4px;font-size:13px}
+.story-wrap .story-seat{width:12px;height:12px}
+.story-pile{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0}
+.story-bundle{display:grid;grid-template-columns:repeat(5,16px);gap:3px;padding:4px;border:2px dashed var(--line);border-radius:8px}
+.story-bundle.full{border-style:solid;border-color:var(--ok)}
+.story-piece{width:16px;height:16px;border-radius:4px;background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.story-piece.in,.story-piece.loose{background:var(--ok);box-shadow:none}
+.story-piece.guest{border-radius:50%;background:var(--cb);box-shadow:none}
+.story-piece.guest2{border-radius:3px 3px 8px 8px;background:var(--ca);box-shadow:none}
+.story-piece.seat{border-radius:4px;background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.story-piece.seat.on{background:var(--star);box-shadow:none}
+.story-piece.seat.more{box-shadow:inset 0 0 0 2px var(--star)}
+.story-piece.cargo{border-radius:2px;background:var(--cb);box-shadow:none}
+.story-piece.trip{border-radius:2px 8px 2px 8px;background:var(--ca);box-shadow:none}
+.story-role{margin:4px 0 0;font-size:13px}
+.story-loose{display:flex;flex-wrap:wrap;gap:3px;min-height:16px;max-width:120px}
+/* Две доставленные корзины E4. Полоса над навигацией, а карта укорачивается
+   на ту же высоту: острова, шапка и верхний чип не оказываются под ней.
+   320×844: башня была y714–770, корзины y722–778. Ожидания и анимации нет. */
+.story-drops{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.story-drop{display:flex;align-items:center;gap:6px;min-height:44px;padding:4px 8px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.story-drop .pal{width:44px;height:44px;flex:none}
+.story-drop-txt{display:flex;flex-direction:column;min-width:0}
+.story-drop-txt span{white-space:nowrap;font-size:13px;line-height:1.15}
+.mapwrap .story-drops{position:fixed;z-index:6;left:max(8px,calc((100% - 460px) / 2 + 8px));right:max(8px,calc((100% - 460px) / 2 + 8px));bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 4px);margin:0;flex-wrap:nowrap}
+.mapwrap .story-drop{flex:1 1 0}
+/* Полоса с тремя числами в одну строку ~56px. Резерв 96px выше неё, чтобы башня
+   (раньше y650–706 при карточках y673–778) оставалась в карте. */
+body:has(.mapwrap .story-drops) .mapwrap{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 96px)}
+/* Итог двух рейсов. Раньше <p> выпадал из чипа в поток .mapwrap и обрезался
+   overflow:hidden (на 722 строка y568 при низе карты 564, на 320 y690).
+   Полоса fixed над корзинами T03. Места T04 остаются в чипе. Карта короче
+   на высоту полосы, острова остаются внутри неё. */
+.mapwrap .story-cargo{position:fixed;z-index:6;left:max(8px,calc((100% - 460px) / 2 + 8px));right:max(8px,calc((100% - 460px) / 2 + 8px));bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 8px);margin:0;display:flex;justify-content:center;align-items:center;gap:10px;min-height:32px;padding:4px 10px;border-radius:12px;background:var(--card);color:var(--ink);box-shadow:var(--shadow);font-size:14px;font-weight:700}
+.mapwrap .story-cargo span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+body:has(.mapwrap .story-drops) .mapwrap .story-cargo{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 68px)}
+body:has(.mapwrap .story-cargo) .mapwrap{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 48px)}
+body:has(.mapwrap .story-drops):has(.story-cargo) .mapwrap{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 132px)}
+/* Шкала «Сегодня N минут» больше не якорится внутри масштабируемой карты
+   (раньше absolute top +96px). Иначе любой резерв низа поднимает острова
+   в шкалу: на 320×844 после резерва 96px Мятный луг y273 пересекал шкалу y248.
+   Чип с 16 местами на 320 занимает y84–163. Шкала и Копилка с +176px
+   (y190) ниже него и выше Мятного луга (y273). На широком низком экране
+   они остаются в полях, +70px.
+   Резерв корзин 96px не меняется: карточки уже 56px и башню не закрывают. */
+body:has(.mapwrap) .daily-chip{position:fixed;z-index:8;top:calc(max(14px,env(safe-area-inset-top)) + 176px);left:max(12px,env(safe-area-inset-left));right:auto}
+/* 1440×722 принято: шкала слева от колонки 460px, на одной линии с чипом истории. */
+@media (max-height:760px) and (min-width:800px){
+  body:has(.mapwrap) .daily-chip{top:calc(max(14px,env(safe-area-inset-top)) + 70px);left:16px}
+}
+/* Копилка на зрелом профиле стояла у низа колонки и на 1440×722 закрывала
+   Гномью гору (x820–938, y450–494 против пина x760–910, y437–493).
+   Теперь она в той же верхней полосе, что и шкала: на телефоне справа от неё,
+   на широком низком экране в правом поле, не на пинах. */
+body:has(.mapwrap) .facts-fab{position:fixed;z-index:8;top:calc(max(14px,env(safe-area-inset-top)) + 176px);right:max(8px,env(safe-area-inset-right));bottom:auto;left:auto}
+@media (max-height:760px) and (min-width:800px){
+  body:has(.mapwrap) .facts-fab{top:calc(max(14px,env(safe-area-inset-top)) + 70px);right:16px}
+}
+.map-board-art{display:none}
+.mapwrap .map-board{position:fixed;z-index:6;left:max(8px,calc((100% - 460px) / 2 + 8px));right:max(8px,calc((100% - 460px) / 2 + 8px));bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 56px);margin:0;background:var(--card);color:var(--ink);border-radius:14px;box-shadow:var(--shadow)}
+.mapwrap .map-board summary{min-height:44px;padding:10px 12px;cursor:pointer;font-weight:800}
+.mapwrap .map-board summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.mapwrap .map-board .story-drops,.mapwrap .map-board .story-cargo{position:static;left:auto;right:auto;bottom:auto;margin:0 8px 8px;flex-wrap:wrap;box-shadow:none}
+body:has(.mapwrap .map-board) .mapwrap{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 108px)}
+body:has(.mapwrap) .daily-chip{top:auto;bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 8px);left:max(8px,calc((100% - 460px) / 2 + 8px));right:auto;max-width:46%}
+body:has(.mapwrap) .facts-fab{position:fixed;z-index:4;top:auto;bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 8px);right:max(8px,calc((100% - 460px) / 2 + 8px));left:auto;max-width:46%}
+.map-side{display:none}
+@media(min-width:1100px){
+  body.map-bg .wrap{background:var(--paper)}
+  body.map-bg #app{display:grid;grid-template-columns:520px minmax(0,360px);align-items:start;column-gap:16px}
+  body.map-bg .mapwrap{position:relative;inset:auto;height:calc(100dvh - 76px);overflow:hidden}
+  .map-side{display:flex;flex-direction:column;gap:8px;width:340px;margin:16px 0 0;padding:0;background:transparent;align-self:start}
+  .map-side .story-chip,.map-side .map-board,.map-side .daily-chip,.map-side .facts-fab{position:relative;left:auto;right:auto;top:auto;bottom:auto;transform:none;width:100%;max-width:none;margin:0}
+  body:has(.map-side) .daily-chip,body:has(.map-side) .facts-fab{position:relative;left:auto;right:auto;top:auto;bottom:auto;width:100%;max-width:none}
+  .map-side .map-board{max-height:none;overflow:visible}
+  .map-side .map-board-art{display:block;width:100%;height:120px;object-fit:cover;object-position:center 40%;border-radius:12px}
+  body:has(.map-side) .mapwrap{bottom:max(62px,calc(54px + env(safe-area-inset-bottom)))}
+}
+body:has(.mapwrap .map-board .story-drops):has(.story-cargo) .mapwrap{bottom:calc(max(62px,54px + env(safe-area-inset-bottom)) + 108px)}

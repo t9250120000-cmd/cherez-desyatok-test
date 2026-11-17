@@ -1,0 +1,72 @@
+/* Волна 1: «Две корзинки», «Сделай поровну», «Поезд чисел», «Сколько спряталось?». Общий вид — из number-games.css.
+   Без движения ожидания; переходы короче 600 мс и выключаются при reduced motion. */
+body[data-screen="numberPlay"] .wrap{max-width:720px;padding:max(12px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+body[data-screen="numberPlay"] #app>.topbar{display:none}
+
+.np-berry{display:inline-block;width:26px;height:28px;color:#C44258}
+.np-berry svg{width:100%;height:100%;display:block}
+.np-item{display:inline-grid;place-items:center;width:30px;height:32px}
+.np-item.right .np-berry{color:#2F72C4}
+.np-item.added{outline:3px dashed var(--cb,#2F72C4);outline-offset:-3px;border-radius:10px}
+.np-item.added .np-berry{color:#2F72C4}
+.np-item.found .np-berry{color:#2F72C4}
+
+/* Две корзинки */
+.np-table{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border-radius:18px;border:2px dashed var(--line);margin-bottom:12px}
+.np-table>span{font-weight:800}.np-table b{font-size:1.411765rem}
+.np-table .ng-button,.np-total .ng-button{font-size:0.823529rem;min-height:44px;padding:8px 12px}
+.np-items{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;min-height:34px}
+.np-baskets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.np-basket{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:18px;padding:10px;background:var(--soft);min-width:0}
+.np-basket.right{border-color:#2F72C4}
+.np-basket h2{margin:0;font-size:1rem;display:flex;justify-content:space-between;align-items:baseline}.np-basket h2 b{font-size:1.529412rem}
+.np-pair{display:flex;flex-direction:column-reverse;gap:6px;margin-top:auto}
+.np-pair .ng-button{font-size:0.941176rem;padding:8px 6px;min-height:48px;white-space:nowrap}
+.np-bar{display:flex;gap:3px;justify-content:center;margin:14px 0 4px}
+.np-bar i{width:22px;height:22px;border-radius:6px;border:2px dashed var(--line)}
+.np-bar i.left{background:#C44258;border:2px solid #C44258}.np-bar i.right{background:#2F72C4;border:2px solid #2F72C4}
+.np-sum{text-align:center;font-weight:800;margin:4px 0 0}
+
+/* Сделай поровну */
+/* как рамка 2×5: ягода с тем же номером стоит на том же месте в обеих корзинках — пары видно по положению */
+.np-column{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+.np-slot{height:34px;display:grid;place-items:center;border-radius:8px;border:1px dashed var(--line)}
+.np-slot .np-item{width:100%}
+.np-baskets.eq.paired .np-slot.paired{border:2px solid var(--ok,#2E7D4F)}
+
+/* Поезд чисел */
+.np-train{display:flex;align-items:flex-end;justify-content:center;gap:5px;flex-wrap:wrap}
+.np-engine{width:46px;height:40px;flex:0 0 auto}.np-engine svg{width:100%;height:100%}
+.np-wagon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex:0 0 58px;width:58px;min-height:72px;padding:6px 4px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:900 1.647059rem/1 var(--f-body);cursor:pointer;touch-action:manipulation;box-shadow:inset 0 -6px 0 var(--soft)}
+.np-wagon.selected{border:3px solid var(--cb,#2F72C4);background:var(--hl);transform:translateY(-4px);transition:transform .15s}
+.np-wagon.bad{border:3px dashed #C44258}
+.np-wagon:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.np-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;max-width:44px}.np-dots i{width:7px;height:7px;border-radius:50%;background:#C44258}
+.np-line{display:flex;justify-content:space-between;gap:2px;margin:12px 0 0;padding:6px 0;border-top:3px solid var(--line)}
+.np-line span{flex:1;text-align:center;font-size:0.823529rem;font-weight:700;color:var(--muted,inherit)}
+.np-line span.on{background:var(--hl);border:2px solid var(--coin);border-radius:8px;font-weight:900;color:var(--ink)}
+
+/* Сколько спряталось? */
+.np-total{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:800;font-size:1.176471rem;margin-bottom:12px}.np-total b{font-size:2.235294rem}
+.np-hide{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;min-height:60px}
+.np-hide.two{max-width:260px;margin:0 auto}
+.np-leaf{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;min-width:64px;min-height:52px;padding:6px 10px;border-radius:28px 6px 28px 6px;background:#3E8E5A;color:#fff;font-size:1.647059rem}
+.np-leaf.open{background:transparent;border:3px dashed #3E8E5A}
+.np-empty{display:inline-block;width:24px;height:24px;border-radius:50%;border:3px dashed #C44258}
+
+/* итог серии и карточки */
+.np-done{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.294118rem;font-weight:900;margin:4px 0 14px}
+.np-card-baskets>span,.np-card-eq>span{display:flex;padding:4px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
+.np-card-baskets .np-berry,.np-card-eq .np-berry,.np-card-hidden .np-berry{width:20px;height:22px}
+.np-card-eq b{font-size:1.411765rem}
+.np-card-train>span{display:grid;place-items:center;width:34px;height:40px;border-radius:10px;border:2px solid var(--line);background:var(--card);font-size:1.176471rem;font-weight:900}
+.np-card-hidden i{display:grid;place-items:center;width:38px;height:34px;border-radius:18px 4px 18px 4px;background:#3E8E5A;color:#fff;font-style:normal;font-weight:900}
+
+@media(max-width:359px){.np-item{width:26px;height:28px}.np-berry{width:22px;height:24px}.np-wagon{flex-basis:52px;width:52px;font-size:1.411765rem}.np-engine{width:36px}.np-slot{height:28px}.np-pair .ng-button{font-size:0.823529rem}.np-bar i{width:18px;height:18px}}
+@media(prefers-reduced-motion:reduce){.np-wagon.selected{transform:none;transition:none}}
+
+/* Заказ двум друзьям / Другой способ (сцены «Большого дня» и хаб) */
+.np-heroes{display:flex;justify-content:center;gap:24px;margin:0 0 8px}
+.np-heroes .np-pal{display:inline-flex;width:64px;height:64px}
+.np-heroes .np-pal svg{width:100%;height:100%}
+.np-prev{margin:0 0 8px;font-size:0.941176rem;font-weight:800;color:var(--muted)}

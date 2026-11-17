@@ -13,6 +13,7 @@
   const ins=t=>t._ins||(t._ins={wr:{},nl:0,ex:0});
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let series=[];                        // записи заданий текущей серии — для признаков усталости
+  let seriesSince=null;
 
   function chain(name,fn){const prev=ext.hooks[name];ext.hooks[name]=function(...a){let out='';try{out=prev?prev.apply(this,a):'';}catch(e){out='';}const mine=fn.apply(this,a);return (out||'')+(mine||'');};}
   function chainValue(name,fn){const prev=ext.hooks[name];ext.hooks[name]=function(...a){let v;try{v=prev?prev.apply(this,a):'';}catch(e){v='';}const mine=fn.apply(this,a);return v||mine||'';};}
@@ -27,7 +28,9 @@
   chain('taskDone',(t)=>{
     const p=prof();if(!p||!t)return '';
     const S=app.S,len=S.lessonLen||app.DB.parent.session||8;
-    const rec=I.taskRecord(t,{now:Date.now(),pos:S.count,len,focus:!!(root.__focus&&root.__focus.active())});
+    const ctx={now:Date.now(),pos:S.count,len,focus:!!(root.__focus&&root.__focus.active())};
+    if(S.storyLesson&&typeof seriesSince==='number')ctx.since=seriesSince;
+    const rec=I.taskRecord(t,ctx);
     I.push(p,'tasks',rec);series.push(rec);store();
     return '';
   });
@@ -38,7 +41,7 @@
   },true);
 
   function logFatigue(reason,choice){const p=prof();if(!p)return;I.push(p,'fatigue',{at:Date.now(),reason,choice:choice||'shown'});store();}
-  function logGame(res){const p=prof();if(!p||!res)return;I.push(p,'games',Object.assign({at:Date.now()},res));store();}
+  function logGame(res){const p=prof();if(!p||!res)return;const row=Object.assign({at:Date.now()},res);if(res.slot)I.keep(p,'games',row,res.slot);else I.push(p,'games',row);store();}
   function markNumberLine(t){ins(t).nl=1;}
 
   /* ---------- отчёт в кабинете родителя ---------- */
@@ -68,6 +71,29 @@
     if(app.S.insText)h+='<textarea class="input ins-text" readonly rows="6" aria-label="Текст отчёта">'+esc(app.S.insText)+'</textarea>';
     return h+'</section>';
   }
+  function plainSlot(){const id=(app.P()||{}).id;return id?'plain-lesson-'+id:'';}
+  function plainRow(skill){
+    const p=prof(),slot=plainSlot();if(!p||!slot)return null;
+    const row=(p.games||[]).find(g=>g&&g.slot===slot&&g.level==='open'&&g.item&&g.item.key&&(!skill||g.skill===skill));
+    return row||null;
+  }
+  chain('lessonSnap',(info)=>{
+    if(!app.S||app.S.storyLesson||app.S.diag)return '';
+    const slot=plainSlot();if(!slot||!info||!info.item||!info.item.key)return '';
+    logGame({game:'ten-bridge',origin:'plain-lesson',slot,level:info.closed?'closed':'open',skill:app.S.skill,pid:(app.P()||{}).id,
+      len:info.len,phase:info.phase,count:info.count,results:info.results,item:info.item,form:info.form||'',si:info.si,wr:info.wr,kp:info.kp,clean:info.clean,done:info.done,taps:info.taps,heard:info.heard,ins:info.ins,covered:info.covered?1:0,earned:info.earned,retry:info.retry,last:info.last});
+    return '';
+  });
+  chain('plainOffer',(id)=>{
+    const row=plainRow(id);if(!row)return '';
+    return '<button type="button" class="btn" data-act="plainResume" data-id="'+id+'">Продолжить</button>';
+  });
+  ext.acts.plainResume=(a,id)=>{
+    const row=plainRow(id);
+    app.S.island=null;
+    app.S.resume=row||null;
+    app.startSession(id||(app.P()||{}).cur);
+  };
   chain('parentStats',p=>p?report(p):'');
   ext.acts.insCopy=(a,id,p)=>{
     const s=I.summarize(prof(p.id),Date.now(),14),txt=I.reportText(p.name,s,I.advice(s));
@@ -77,5 +103,5 @@
   };
   chain('leave',screen=>{if(screen!=='parent')app.S.insText='';return '';});
 
-  root.__insights={logFatigue,logGame,markNumberLine,series:()=>series.slice(),get ST(){return ST;},prof,KEY};
+  root.__insights={logFatigue,logGame,markNumberLine,bindSeries(since){seriesSince=typeof since==='number'?since:null;},series:()=>series.slice(),get ST(){return ST;},prof,KEY};
 })(window);

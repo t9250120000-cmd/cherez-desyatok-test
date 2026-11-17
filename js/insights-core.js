@@ -11,7 +11,7 @@
     answer:{}
   };
   const SKILL_NAMES={see:'Сколько слаймиков',to10:'Дружные с 10',split:'Разбей число',teen:'Десяток и ещё',add:'Плюс через 10',sub:'Минус через 10',mix:'В уме'};
-  const GAME_NAMES={race:'Слаймовая дорожка',triple:'Собери тройку',collect:'Собери число',compare:'Где больше?',match:'Найди число',house:'Домик числа',path:'Дорожка Булька',feed:'Угости друзей'};
+  const GAME_NAMES={race:'Слаймовая дорожка',triple:'Собери тройку',collect:'Собери число',compare:'Где больше?',match:'Найди число',house:'Домик числа',path:'Дорожка Булька',feed:'Угости друзей','split-baskets':'Две корзинки',equalize:'Сделай поровну','order-train':'Поезд чисел','hidden-part':'Сколько спряталось?','number-bus':'Автобус Булька','ten-bridge':'Мост через десяток','tens-workshop':'Мастерская десятков','balance-sums':'Весы равенства','repair-equation':'Почини пример','picnic-stories':'Пикник по заказу','unit-builder':'Линейка строителя','number-domino':'Числовое домино','story-t01-1':'Большой день: Кто уже пришёл?','story-t01-2':'Большой день: Полный этаж','story-t01-3':'Большой день: Короткий взгляд','story-t01-4':'Большой день: Первое угощение','story-t02-1':'Большой день: Свободные комнаты','story-t02-2':'Большой день: Заказ Тестика','story-t02-3':'Большой день: Друзья десяти','story-t02-4':'Большой день: Десять мест для встречи','story-t03-1':'Большой день: Две корзинки','story-t03-2':'Большой день: Закрытая корзинка','story-t03-3':'Большой день: Другой способ','story-t03-4':'Большой день: Заказ двум друзьям','story-t04-1':'Большой день: Связка десяти','story-t04-2':'Большой день: Два теремка','story-t04-3':'Большой день: Сообщение Королю','story-t04-4':'Большой день: Большой заказ','story-t05-1':'Большой день: Сначала до десяти','story-t05-2':'Большой день: Что осталось?','story-t05-3':'Большой день: Без переселения','story-t05-4':'Большой день: Ещё гости'};
 
   // Какой шаг стратегии «через десяток» сейчас решается. si — номер шага в задании.
   function role(skill,ph,si){
@@ -33,14 +33,91 @@
   const day=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
   function emptyProfile(){return {tasks:[],fatigue:[],games:[]};}
   const CAPS={tasks:400,fatigue:80,games:150};
-  function push(prof,list,item){prof[list].push(item);if(prof[list].length>CAPS[list])prof[list].splice(0,prof[list].length-CAPS[list]);return prof;}
+  function storyFact(g){
+    return !!(g&&typeof g.origin==='string'&&g.origin.indexOf('story-t')===0&&g.origin.indexOf('lesson')<0&&g.origin.indexOf('replay-draft')<0);
+  }
+  function pinGames(arr){
+    const slot={}, story={}, fact={};
+    arr.forEach(g=>{
+      if(!g)return;
+      if(g.slot)slot[g.slot]=g;
+      if(typeof g.game==='string'&&/^story-t0[1-7]-[1-4]$/.test(g.game))story[g.game]=g;
+      if(storyFact(g))fact[g.origin+'|'+(g.ep||'')+'|'+(g.level||'')]=g;
+    });
+    arr.forEach(credit=>{
+      if(!credit||typeof credit.game!=='string'||!/^story-t0[1-7]-[1-4]$/.test(credit.game)||credit.level==null)return;
+      let best=null;
+      arr.forEach(raw=>{
+        if(!storyFact(raw)||raw.origin!==credit.game||raw.level!==credit.level||!(raw.at<credit.at))return;
+        if(!best||raw.at>best.at)best=raw;
+      });
+      if(best)fact['witness|'+credit.game+'|'+credit.level]=best;
+    });
+    const pins=new Set([].concat(Object.values(slot),Object.values(story),Object.values(fact)));
+    if(pins.size<=CAPS.games)return pins;
+    const hard=[], soft=[];
+    pins.forEach(g=>((g.slot||(typeof g.game==='string'&&g.game.indexOf('story-t')===0))?hard:soft).push(g));
+    const room=Math.max(0,CAPS.games-hard.length);
+    const kept=new Set(hard.length>CAPS.games?hard.slice(hard.length-CAPS.games):hard.concat(soft.slice(soft.length-room)));
+    return kept;
+  }
+  const CHAPTER_SKILL={1:'see',2:'to10',3:'split',4:'teen',5:'add',6:'sub'};
+  function seriesSkill(d){
+    if(d&&d.skill)return d.skill;
+    const src=String(d&&d.slot||'')+' '+String(d&&d.origin||'');
+    const m=/t0([1-7])/.exec(src);
+    return m?CHAPTER_SKILL[m[1]]||'':'';
+  }
+  function pinTasks(tasks, games){
+    const drafts=(games||[]).filter(g=>g&&g.slot&&g.since&&(g.level==='open'||g.level==='closed'));
+    const pins=new Set();
+    drafts.forEach(d=>{
+      const credited=(games||[]).some(g=>g!==d&&g.since===d.since&&(typeof g.game==='string'&&g.game.indexOf('story-t')===0||(typeof g.origin==='string'&&/-replay$/.test(g.origin))));
+      if(d.level==='closed'&&credited)return;
+      const sk=seriesSkill(d), ph=d.phase|0, len=d.len|0||8, until=typeof d.at==='number'?d.at:0;
+      const positions=d.level==='closed'?len:Math.min(len,d.count|0);
+      for(let i=0;i<positions;i++){
+        const hits=tasks.filter(t=>t&&t.at>=d.since&&(!until||t.at<=until)&&(!sk||t.sk===sk)&&(!ph||(t.ph||1)===ph)&&(t.pos|0)===i&&(t.since==null||t.since===d.since));
+        const marked=hits.filter(t=>t.since===d.since);
+        const plain=hits.filter(t=>t.since==null);
+        (marked.length?marked:plain).forEach(t=>pins.add(t));
+      }
+    });
+    return pins;
+  }
+  function trimTo(arr, cap, pins){
+    if(arr.length<=cap)return arr;
+    const newest=arr[arr.length-1];
+    const newestPinned=pins.has(newest);
+    const pinRoom=newestPinned?cap:Math.max(0,cap-1);
+    let must=arr.filter(x=>pins.has(x));
+    if(must.length>pinRoom)must=must.slice(must.length-pinRoom);
+    const loose=arr.filter(x=>must.indexOf(x)<0);
+    const room=cap-must.length;
+    const chosen=new Set(must.concat(room?loose.slice(loose.length-room):[]));
+    const next=arr.filter(x=>chosen.has(x));
+    arr.splice(0, arr.length, ...next);
+    return arr;
+  }
+  function push(prof,list,item){
+    const arr=prof[list]; arr.push(item);
+    if(arr.length>CAPS[list]){
+      if(list==='games')trimTo(arr,CAPS.games,pinGames(arr));
+      else if(list==='tasks')trimTo(arr,CAPS.tasks,pinTasks(arr,prof.games||[]));
+      else arr.splice(0, arr.length-CAPS[list]);
+    }
+    return prof;
+  }
+  function keep(prof,list,item,slot){const arr=prof[list],i=arr.findIndex(x=>x&&x.slot===slot);if(i>=0){arr[i]=item;return prof;}return push(prof,list,item);}
 
   // Запись одного задания из объекта задания игры (поля движка не меняются, читаются).
   function taskRecord(t,ctx){
     const wr={};let total=0;
     for(const k of Object.keys(t._ins&&t._ins.wr||{})){wr[k]=t._ins.wr[k];total+=wr[k];}
-    return {at:ctx.now,sk:t.skill,ph:t.ph,key:t.item&&t.item.key||t.key||'',wr,w:total,nl:t._ins&&t._ins.nl?1:0,ex:t._ins&&t._ins.ex||0,
+    const rec={at:ctx.now,sk:t.skill,ph:t.ph,key:t.item&&t.item.key||t.key||'',wr,w:total,nl:t._ins&&t._ins.nl?1:0,ex:t._ins&&t._ins.ex||0,peek:t._ins&&t._ins.peek|0,
       sec:Math.max(0,Math.min(600,Math.round((ctx.now-(t.startAt||ctx.now))/1000))),clean:t.clean?1:0,pos:ctx.pos,len:ctx.len,focus:ctx.focus?1:0};
+    if(typeof ctx.since==='number')rec.since=ctx.since;
+    return rec;
   }
 
   // Предложить перерыв? recent — записи заданий текущей серии (последние в конце).
@@ -69,7 +146,12 @@
       if(r.ph===3&&['add','sub'].includes(r.sk)||r.sk==='mix'){s.mind.n++;s.mind.nl+=r.nl;s.mind.wrong+=r.clean?0:1;s.mind.secs.push(r.sec);}
     }
     for(const f of fatigue){if(s.fatigue[f.reason]!=null)s.fatigue[f.reason]++;if(f.choice==='stop')s.fatigue.stopped++;}
-    for(const g of games){const x=s.games[g.game]||(s.games[g.game]={plays:0,rounds:0,errors:0,supported:0,levels:{}});x.plays++;x.rounds+=g.rounds||0;x.errors+=g.errors||0;x.supported+=g.supported||0;x.levels[g.level]=(x.levels[g.level]||0)+1;}
+    for(const g of games){
+      if(!g||g.game==='split-baskets-draft'||g.origin==='story-t03-scene-draft')continue;
+      if(g.origin==='story-t04-4'&&g.level==='draft')continue;
+      const x=s.games[g.game]||(s.games[g.game]={plays:0,rounds:0,errors:0,supported:0,levels:{}});
+      x.plays++;x.rounds+=g.rounds||0;x.errors+=g.errors||0;x.supported+=g.supported||0;x.levels[g.level]=(x.levels[g.level]||0)+1;
+    }
     const med=a=>{if(!a.length)return 0;const b=a.slice().sort((x,y)=>x-y);return b[Math.floor(b.length/2)];};
     s.medianSec=med(s.secs);s.mind.medianSec=med(s.mind.secs);delete s.secs;delete s.mind.secs;
     s.hard=Object.values(s.keys).sort((a,b)=>b.w-a.w||b.n-a.n).slice(0,6);delete s.keys;
@@ -118,6 +200,6 @@
     return lines.join('\n');
   }
 
-  const api={role,roleName,day,emptyProfile,push,taskRecord,fatigueSignal,summarize,weakStep,advice,reportText,pretty,SKILL_NAMES,GAME_NAMES,CAPS};
+  const api={role,roleName,day,emptyProfile,push,keep,taskRecord,fatigueSignal,summarize,weakStep,advice,reportText,pretty,SKILL_NAMES,GAME_NAMES,CAPS};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.TEREM_INSIGHTS=api;
 })(typeof window!=='undefined'?window:globalThis);

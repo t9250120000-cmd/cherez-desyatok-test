@@ -5,12 +5,12 @@
   const clamp=(v,a,b,d)=>{v=Math.round(Number(v));return Number.isFinite(v)?Math.max(a,Math.min(b,v)):d;};
   function settings(s){s=Object.assign({},DEF,s||{});return {on:!!s.on,goal:clamp(s.goal,5,60,15),bonus:clamp(s.bonus,0,20,5),report:s.report!==false};}
   // Секунда засчитывается, только если ребёнок занимается: нужный экран, приложение на виду, касание не дольше минуты назад.
-  const ACTIVE=new Set(['task','facts','talk','numberGames','foundations','senseGames','break']);
+  const ACTIVE=new Set(['task','facts','talk','numberGames','foundations','senseGames','numberPlay','mathAdventures','break']);
   function counts(st){return !!(st&&ACTIVE.has(st.screen)&&st.visible&&st.idleMs<60000&&!st.paused);}
   function progress(sec,goalMin){const goal=goalMin*60;return {sec,min:Math.floor(sec/60),goalMin,ratio:Math.min(1,sec/goal),done:sec>=goal};}
   const SKILL={see:'Сколько слаймиков',to10:'Дружные с 10',split:'Разбей число',teen:'Десяток и ещё',add:'Плюс через 10',sub:'Минус через 10',mix:'В уме'};
   const PHASE=['руками','по картинке','в уме'];
-  const GAME={race:'Слаймовая дорожка',triple:'Собери тройку',collect:'Собери число',compare:'Где больше?',match:'Найди число',house:'Домик числа',path:'Дорожка Булька',feed:'Угости друзей'};
+  const GAME={race:'Слаймовая дорожка',triple:'Собери тройку',collect:'Собери число',compare:'Где больше?',match:'Найди число',house:'Домик числа',path:'Дорожка Булька',feed:'Угости друзей','split-baskets':'Две корзинки',equalize:'Сделай поровну','order-train':'Поезд чисел','hidden-part':'Сколько спряталось?','number-bus':'Автобус Булька','ten-bridge':'Мост через десяток','tens-workshop':'Мастерская десятков','balance-sums':'Весы равенства','repair-equation':'Почини пример','picnic-stories':'Пикник по заказу','unit-builder':'Линейка строителя','number-domino':'Числовое домино'};
   const pretty=k=>String(k).replace('-',' − ').replace('+',' + ');
   const pct=(a,b)=>b?Math.round(a/b*100):0;
   /* r: {name,date,sec,goalMin,goalDone,day:{tasks,clean,coins},skill,phase,tasks:[записи журнала за день],fatigue:[...],games:[...],facts:{known,new}} */

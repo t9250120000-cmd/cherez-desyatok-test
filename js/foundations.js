@@ -3,7 +3,7 @@
   'use strict';
   const app=root.__app,ext=root.__ext,core=root.TEREM_FOUNDATIONS;
   if(!app||!ext||!core)return;
-  let session=null,paused=false,wrongs=0;
+  let session=null,paused=false,wrongs=0,origin=null;
   const base=new URL('../',document.currentScript.src);
   const berry='<span class="picnic-berry" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M11 15C6 24 16 40 24 43C32 40 42 24 37 15C32 9 16 9 11 15Z" fill="#C44258"/><path d="M24 16L11 10L21 9L24 3L27 9L37 10Z" fill="#376E4B"/><path d="M17 22L18 25M29 21L28 24M23 30L24 33" stroke="#FFF4D6" stroke-width="2.5" stroke-linecap="round"/></svg></span>';
   function hero(id){return id==='see'?'<img class="picnic-hero" src="'+new URL('art/companion/bulk-waiting.webp',base).href+'" alt="" draggable="false">':root.CH.pal(id,'picnic-hero','','neutral');}
@@ -28,7 +28,12 @@
     app.render();
     const el=focus&&document.querySelector(focus);if(el)el.focus({preventScroll:true});
   }
-  function open(){session=null;paused=false;app.go('foundations',{island:null});}
+  /* Куда возвращать фокус после замены DOM: основной элемент текущей фазы.
+     Одна цепочка для выбора уровня, возврата из паузы и ходов игры. */
+  function phaseFocus(s){
+    return s.phase==='success'?'[data-picnic="next"]':s.phase==='finish'?'.picnic-intro [data-picnic="exit"]':s.phase==='count'?'[data-picnic="answer"]':s.phase==='feed'?'[data-picnic="feed"][data-index="'+Math.max(0,s.fed.indexOf(false))+'"]':null;
+  }
+  function open(opts){session=null;paused=false;origin=opts&&typeof opts.origin==='string'?opts.origin:null;app.go('foundations',{island:null});}
   ext.views.foundations=view;
   ext.acts.foundations=open;
   const prior=ext.hooks.islandExtra;
@@ -38,21 +43,24 @@
     const action=b.dataset.picnic;
     if(action==='exit'){session=null;paused=false;app.go('map',{island:null});return;}
     if(action==='home'){session=null;paused=false;if(ext.acts.numberGames)ext.acts.numberGames();else paint();return;}
-    if(action==='small'||action==='large'){if(session)return;session=core.create(action);wrongs=0;paint();return;}
+    if(action==='small'||action==='large'){if(session)return;session=core.create(action);wrongs=0;paint(phaseFocus(session));return;}
     if(!session)return;
     if(action==='pause'){paused=true;root.AUDIO.stop();paint('[data-picnic="resume"]');return;}
-    if(action==='resume'){paused=false;paint();return;}
+    if(action==='resume'){paused=false;paint(phaseFocus(session));return;}
     if(paused)return;
     if(action==='number'){if(session.phase==='success')root.AUDIO.say(root.FP.answer(core.target(session)),{force:true});return;}
     const before=session;
     session=core.reduce(session,{type:action,round:Number(b.dataset.round),index:Number(b.dataset.index),value:Number(b.dataset.value)});
     if(before===session)return;
     if(action==='answer'&&session.phase==='count'&&session.message)wrongs++;
-    if(session.phase==='finish'&&before.phase!=='finish'&&root.__insights)root.__insights.logGame({game:'feed',level:session.level,rounds:session.results.length,errors:wrongs,supported:session.results.filter(r=>r.supported).length});
+    if(session.phase==='finish'&&before.phase!=='finish'&&root.__insights)root.__insights.logGame({game:'feed',level:session.level,rounds:session.results.length,errors:wrongs,supported:session.results.filter(r=>r.supported).length,...(origin?{origin}:null)});
     root.AUDIO.stop();
     // Keep keyboard focus meaningful when the app replaces its DOM.
-    const focus=session.phase==='success'?'[data-picnic="next"]':session.phase==='count'?'[data-picnic="answer"]':session.phase==='feed'?'[data-picnic="feed"][data-index="'+Math.max(0,session.fed.indexOf(false))+'"]':null;
-    paint(focus);
+    paint(phaseFocus(session));
+    /* На коротком экране (масштаб 200%) кнопка «Следующие друзья» может оказаться
+       подрезанной снизу; доводим прокрутку до неё. При 100% кнопка уже видна целиком,
+       и block:'nearest' прокрутку не меняет. По прецеденту js/number-games.js. */
+    if(session.phase==='success')document.querySelector('[data-picnic="next"]')?.scrollIntoView({block:'nearest'});
   });
   // Backgrounding must not finish a round, start speech or lose the session.
   document.addEventListener('visibilitychange',()=>{

@@ -3,9 +3,9 @@ body[data-screen="senseGames"] .wrap{max-width:720px;padding:max(12px,env(safe-a
 body[data-screen="senseGames"] #app>.topbar{display:none}
 
 /* карточки в библиотеке */
-.sg-card-race span{display:grid;place-items:center;width:34px;height:43px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:20px;font-weight:900}
+.sg-card-race span{display:grid;place-items:center;width:34px;height:43px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:1.176471rem;font-weight:900}
 .sg-card-race span.ten{background:var(--hl);border:2px solid var(--coin)}
-.sg-card-triple{flex-wrap:wrap;gap:6px}.sg-card-triple>span:not(.sg-frame){font-size:26px;font-weight:900;line-height:1}.sg-card-triple .w{font-size:16px}
+.sg-card-triple{flex-wrap:wrap;gap:6px}.sg-card-triple>span:not(.sg-frame){font-size:1.529412rem;font-weight:900;line-height:1}.sg-card-triple .w{font-size:0.941176rem}
 .sg-frame{display:inline-grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:3px;border-radius:6px;background:var(--line);vertical-align:middle}
 .sg-frame i{width:12px;height:12px;border-radius:3px;background:var(--card)}
 .sg-frame i.on{background:var(--ca,#D43F57);border-radius:50%}
@@ -14,14 +14,14 @@ body[data-screen="senseGames"] #app>.topbar{display:none}
 
 /* дорожка */
 .sg-race-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 12px}
-.sg-score{font-size:16px;color:var(--muted)}.sg-score b{color:var(--ink);font-size:22px}
+.sg-score{font-size:0.941176rem;color:var(--muted)}.sg-score b{color:var(--ink);font-size:1.294118rem}
 .sg-die{display:grid;grid-template-columns:repeat(3,12px);grid-template-rows:repeat(3,12px);gap:4px;padding:8px;border-radius:14px;background:var(--card);border:2px solid var(--ink);box-shadow:var(--shadow)}
 .sg-die i{border-radius:50%}.sg-die i.on{background:var(--ink)}
 .sg-board{display:flex;flex-direction:column;gap:10px;max-width:460px;margin:0 auto}
 .sg-start{display:flex}.sg-start .sg-cell{width:auto;min-width:150px;aspect-ratio:auto;min-height:52px;padding:6px 12px;align-items:center;gap:6px}
 .sg-start .sg-tok{position:static;width:34px;height:34px}
 .sg-block{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:6px;border-radius:14px 14px 10px 10px;background:var(--line)}
-.sg-cell{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;aspect-ratio:1;min-width:44px;min-height:44px;padding:4px 6px;border:0;border-radius:10px;background:var(--card);color:var(--ink);font:800 16px/1 var(--f-body);cursor:pointer;touch-action:manipulation}
+.sg-cell{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;aspect-ratio:1;min-width:44px;min-height:44px;padding:4px 6px;border:0;border-radius:10px;background:var(--card);color:var(--ink);font:800 0.941176rem/1 var(--f-body);cursor:pointer;touch-action:manipulation}
 .sg-cell b{font-weight:900}
 .sg-cell:disabled{cursor:default;opacity:1}
 .sg-cell.five b{color:var(--ink)}
@@ -37,21 +37,21 @@ body[data-screen="senseGames"] #app>.topbar{display:none}
 @media(max-width:370px){.sg-cell .sg-tok{width:26px;height:26px}}
 /* тройка */
 .sg-given{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:6px auto 14px;padding:16px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);max-width:460px}
-.sg-given .ng-button{font-size:14px;min-height:44px;padding:8px 12px}
-.sg-digit.big{font-size:64px;font-weight:900;line-height:1}
-.sg-word.big{font-size:34px;font-weight:900}
+.sg-given .ng-button{font-size:0.823529rem;min-height:44px;padding:8px 12px}
+.sg-digit.big{font-size:3.764706rem;font-weight:900;line-height:1}
+.sg-word.big{font-size:2rem;font-weight:900}
 .sg-pic{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .sg-pic.big .sg-frame i{width:24px;height:24px}
-.sg-row{max-width:460px;margin:0 auto 12px}.sg-row h2{font-size:14px;color:var(--muted);margin:0 0 6px;font-weight:800}
+.sg-row{max-width:460px;margin:0 auto 12px}.sg-row h2{font-size:0.823529rem;color:var(--muted);margin:0 0 6px;font-weight:800}
 .sg-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .sg-opt{display:grid;place-items:center;min-height:64px;padding:8px 4px;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);cursor:pointer;touch-action:manipulation;font-family:var(--f-body)}
 .sg-opt.chosen{border-color:var(--ok);background:var(--hl)}.sg-opt:disabled{cursor:default;opacity:1}
-.sg-digit.small{font-size:30px;font-weight:900}
-.sg-word.small{font-size:20px;font-weight:800}
+.sg-digit.small{font-size:1.764706rem;font-weight:900}
+.sg-word.small{font-size:1.176471rem;font-weight:800}
 .sg-row.word .sg-options{grid-template-columns:1fr}.sg-row.word .sg-opt{min-height:52px}
 .sg-pic.small{gap:3px;flex-direction:column;align-items:center}.sg-pic.small .sg-frame i{width:10px;height:10px}
 .sg-helpcard{display:flex;justify-content:center;margin:0 auto 12px}
-.sg-done-list{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.sg-done-list span{min-width:44px;padding:8px;border-radius:12px;background:var(--soft);font-size:22px;font-weight:900}
+.sg-done-list{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.sg-done-list span{min-width:44px;padding:8px;border-radius:12px;background:var(--soft);font-size:1.294118rem;font-weight:900}
 
 /* числовая прямая-подсказка в задании */
 .nl-hint{display:inline-flex;align-items:center;gap:8px;min-height:44px}
@@ -92,7 +92,7 @@ body.focus-calm:not(.fit-short)[data-screen="task"] .example{font-size:34px}body
 /* барьер для взрослого и подтверждение покупки */
 .pg-card h2{margin:0;font-size:24px}.pg-card p{margin:0}
 .pg-q{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums}.pg-buf{display:inline-block;min-width:2.5ch;border-bottom:3px solid var(--ink)}
-.pg-msg{color:var(--danger,#B5462F);font-weight:800}
+.pg-msg{color:var(--danger-text,var(--danger,#B5462F));font-weight:800}
 .pg-keys{width:100%}.pg-keys .key{min-height:52px}
 /* невысокие экраны (390×844 и ниже): длинная инструкция не выталкивает клавиатуру за край */
 body.fit-short[data-screen="task"] .instr p{font-size:20px;line-height:1.17}

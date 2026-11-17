@@ -5,23 +5,23 @@ body[data-screen="foundations"] .wrap{max-width:660px;padding: max(12px,env(safe
 body[data-screen="foundations"] #app>.topbar{display:none}
 .picnic{width:100%;margin:auto;color:var(--ink);font-family:var(--f-body);padding-bottom:16px}
 .picnic-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:20px}
-.picnic-nav>span{font-size:13px;color:var(--muted);text-align:center}
-.picnic-button{font:800 18px/1.25 var(--f-body);min-height:52px;min-width:48px;border:1px solid var(--btn-sh);border-radius:18px;padding:12px 16px;color:var(--btn-fg);background:var(--btn);cursor:pointer;touch-action:manipulation}
+.picnic-nav>span{font-size:0.764706rem;color:var(--muted);text-align:center}
+.picnic-button{font:800 1.058824rem/1.25 var(--f-body);min-height:52px;min-width:48px;border:1px solid var(--btn-sh);border-radius:18px;padding:12px 16px;color:var(--btn-fg);background:var(--btn);cursor:pointer;touch-action:manipulation}
 .picnic-button.picnic-secondary{background:var(--card);color:var(--ink);border-color:var(--line)}
-.picnic-nav .picnic-button{font-size:14px;padding:8px 10px;min-height:44px}
+.picnic-nav .picnic-button{font-size:0.823529rem;padding:8px 10px;min-height:44px}
 .picnic button:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
-.picnic h1{font:900 clamp(26px,6.5vw,34px)/1.14 var(--f-body);letter-spacing:-.6px;margin:0 0 10px}
+.picnic h1{font:900 clamp(1.529412rem,6.5vw,2rem)/1.14 var(--f-body);letter-spacing:-.6px;margin:0 0 10px}
 .picnic p{margin:8px 0 18px;line-height:1.45}
 .picnic-intro{text-align:center;display:flex;align-items:center;flex-direction:column;gap:8px;padding:8px 0}
 .picnic-intro>.picnic-hero{width:140px;height:140px;object-fit:contain}
-.picnic-kicker{font:800 13px/1.4 var(--f-body);color:var(--muted);margin:0!important}
+.picnic-kicker{font:800 0.764706rem/1.4 var(--f-body);color:var(--muted);margin:0!important}
 .picnic-start,.picnic-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:430px;margin:0 auto}
-.picnic-note{font-size:13px;max-width:36ch;color:var(--muted)}
+.picnic-note{font-size:0.764706rem;max-width:36ch;color:var(--muted)}
 .picnic-demo{display:flex;align-items:center;justify-content:center;gap:24px;margin:4px 0 16px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:12px 24px}
 .picnic-demo>.picnic-hero{width:76px;height:76px}
-.picnic-demo>span:not(.picnic-plate){font-size:28px;color:var(--muted)}
+.picnic-demo>span:not(.picnic-plate){font-size:1.647059rem;color:var(--muted)}
 .picnic-heading{text-align:center;margin-bottom:18px}
-.picnic-heading p{color:var(--muted);font-size:16px;margin:0}
+.picnic-heading p{color:var(--muted);font-size:0.941176rem;margin:0}
 .picnic-progress{display:flex;gap:9px;justify-content:center;margin:8px 0 24px}
 .picnic-progress span{width:10px;height:10px;border-radius:50%;background:var(--line);border:1px solid var(--muted)}
 .picnic-progress .is-current{background:var(--btn);outline:2px solid var(--btn);outline-offset:3px}
@@ -33,16 +33,23 @@ body[data-screen="foundations"] #app>.topbar{display:none}
 .picnic-plate{width:76px;height:64px;min-width:44px;min-height:44px;display:grid;place-items:center;border-radius:50%;background:var(--soft);border:2px solid var(--line);box-shadow:inset 0 0 0 5px var(--card);padding:8px;touch-action:manipulation;color:var(--muted);cursor:pointer}
 .picnic-plate:disabled{opacity:1;cursor:default;color:var(--muted)}
 .picnic-plate.picnic-hint{border:3px dashed var(--ok)}
-.picnic-empty{font-size:27px;line-height:1}
+.picnic-empty{font-size:1.588235rem;line-height:1}
 .picnic-berry{display:block;width:44px;height:44px}
 .picnic-berry svg{display:block;width:100%;height:100%}
-.picnic-count{height:25px;font-weight:900;font-size:17px;color:var(--ink)}
-.picnic-feedback{min-height:44px;text-align:center;color:var(--ink);font-size:15px;margin:16px 0!important}
+.picnic-count{height:25px;font-weight:900;font-size:1rem;color:var(--ink)}
+.picnic-feedback{min-height:44px;text-align:center;color:var(--ink);font-size:0.882353rem;margin:16px 0!important}
 .picnic-choices{display:flex;justify-content:center;gap:8px}
-.picnic-choices .picnic-button{padding:8px;min-width:44px;flex:1;max-width:76px;font-size:28px;min-height:60px;background:var(--card);color:var(--ink);border-color:var(--line)}
-.picnic-answer{font:900 52px/1 var(--f-body);text-align:center;color:var(--ok)}
+.picnic-choices .picnic-button{padding:8px;min-width:44px;flex:1;max-width:76px;font-size:1.647059rem;min-height:60px;background:var(--card);color:var(--ink);border-color:var(--line)}
+.picnic-answer{font:900 3.058824rem/1 var(--f-body);text-align:center;color:var(--ok)}
 .picnic-totals{display:flex;gap:12px;margin:10px}
-.picnic-totals span{display:grid;place-items:center;width:56px;height:56px;background:var(--card);border:1px solid var(--line);border-radius:18px;font-size:28px;font-weight:900}
+.picnic-totals span{display:grid;place-items:center;width:56px;height:56px;background:var(--card);border:1px solid var(--line);border-radius:18px;font-size:1.647059rem;font-weight:900}
 @media(min-width:540px){.picnic-place{width:calc((100% - 32px)/5)}.picnic-table{padding:32px 16px 16px}}
-@media(max-width:359px){.picnic-nav>span{display:none}.picnic-place>.picnic-hero{width:70px;height:70px}.picnic-plate{width:66px}.picnic-table{padding-inline:8px}.picnic h1{font-size:26px}}
+/* На коротком экране (масштаб 200%) после верного ответа страница остаётся
+   прокрученной к кнопкам выбора, и заголовок успеха уходит выше видимой
+   области; закрепляем его наверху. .picnic-answer есть только в фазе success.
+   По прецеденту .number-games:has(.ng-solution)>.ng-heading. */
+@media(max-height:500px){
+.picnic:has(.picnic-answer)>.picnic-heading{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--paper);padding:8px 0;border-bottom:1px solid var(--line)}
+}
+@media(max-width:359px){.picnic-nav>span{display:none}.picnic-place>.picnic-hero{width:70px;height:70px}.picnic-plate{width:66px}.picnic-table{padding-inline:8px}.picnic h1{font-size:1.529412rem}}
 @media(prefers-reduced-motion:reduce){.picnic *{animation:none!important;transition:none!important}}

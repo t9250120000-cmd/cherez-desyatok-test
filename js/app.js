@@ -48,34 +48,165 @@ function go(screen, extra){
 function toast(msg){ S.toast=msg; render(); setTimeout(()=>{ if(S.toast===msg){ S.toast=''; render(); } }, 2600); }
 
 /* ---------- серия заданий ---------- */
+function lessonQueue(skill, list){
+  if(!Array.isArray(list)) return [];
+  const out=[];
+  for(const row of list){
+    if(!row||row.skill!==skill) continue;
+    const item=lessonItem(skill, row.item);
+    if(!item||!Number.isInteger(row.due)||row.due<0||row.due>24) continue;
+    out.push({skill, item, due:row.due});
+    if(out.length>=8) break;
+  }
+  return out;
+}
+function lessonLast(skill, key){
+  const item=lessonItem(skill, {key:key});
+  return item?item.key:null;
+}
 function startSession(skill, len){
-  const p=P(); S.lessonLen=len||(+hook('sessionLen',skill||p.cur)||0); S.skill=skill||p.cur; S.count=0; S.results=[]; S.retry=[]; S.notice=''; S.diag=null; S.earned=0; E.setLast(null);
+  const p=P();
+  const resume=S.resume; S.resume=null;
+  const story=!!S.storyHold; S.storyHold=0;
+  if(!story){ S.storyLesson=0; S.replayPhase=0; }
+  else S.storyLesson=1;
+  const pinned=story?(S.replayPhase|0):0;
+  S.lessonLen=len||(+hook('sessionLen',skill||p.cur)||0); S.skill=skill||p.cur; S.notice=''; S.diag=null; S.earned=0; S.earnedKnown=true;
+  if(resume&&resume.item&&resume.item.key){
+    if(Number.isInteger(resume.earned)&&resume.earned>=0) S.earned=resume.earned;
+    else S.earnedKnown=false;
+    S.count=resume.count|0; S.results=Array.isArray(resume.results)?resume.results.map(Boolean):[];
+    S.retry=lessonQueue(S.skill, resume.retry);
+    const last=lessonLast(S.skill, resume.last);
+    E.setLast(last);
+    if(resume.len)S.lessonLen=resume.len;
+    S.lessonPhase=pinned||(resume.phase|0); S.replayPhase=0;
+    if(resume.done||S.results.length>S.count){ S.count=Math.min(S.lessonLen,S.results.length); S.preset=null; S.taps=[]; go('task'); nextTask(); return; }
+    S.preset=resume; S.taps=Array.isArray(resume.taps)?resume.taps.slice():[];
+  }else{
+    S.count=0; S.results=[]; S.retry=[]; S.preset=null; S.taps=[];
+    S.lessonPhase=pinned; S.replayPhase=0;
+    E.setLast(null);
+  }
   go('task'); nextTask();
+}
+function oneOf(list, key){
+  if(!key) return null;
+  const hits=list.filter(it=>it&&it.key===key);
+  return hits.length===1?hits[0]:null;
+}
+function lessonItem(skill, item){
+  if(!item||typeof item!=='object'||typeof item.key!=='string'||!item.key) return null;
+  const key=item.key, int=n=>Number.isInteger(n);
+  if(skill==='add'){
+    if(int(item.a)&&int(item.b)&&item.a+'+'+item.b===key) return {a:item.a,b:item.b,key};
+    const cat=oneOf(E.ADD_ALL(), key);
+    return cat?{a:cat.a,b:cat.b,key:cat.key}:null;
+  }
+  if(skill==='sub'){
+    if(int(item.m)&&int(item.s)&&item.m+'-'+item.s===key) return {m:item.m,s:item.s,key};
+    const cat=oneOf(E.SUB_ALL(), key);
+    return cat?{m:cat.m,s:cat.s,key:cat.key}:null;
+  }
+  if(skill==='see'){
+    const n=int(item.n)?item.n:null, from=/^s([1-9]|10)$/.exec(key);
+    const v=n!=null?n:(from?+from[1]:null);
+    return v>=1&&v<=10&&key==='s'+v?{n:v,key}:null;
+  }
+  if(skill==='to10'){
+    const from=/^([pm])([1-9])$/.exec(key);
+    const f=item.f==='plus'||item.f==='minus'?item.f:(from? (from[1]==='p'?'plus':'minus'):null);
+    const n=int(item.n)?item.n:(from?+from[2]:null);
+    const want=(f==='plus'?'p':'m')+n;
+    return n>=1&&n<=9&&(f==='plus'||f==='minus')&&key===want?{n,f,key}:null;
+  }
+  if(skill==='split'){
+    const from=/^([3-9])=([1-8])$/.exec(key);
+    const b=int(item.b)?item.b:(from?+from[1]:null), k=int(item.k)?item.k:(from?+from[2]:null);
+    return b>=3&&b<=9&&k>=1&&k<b&&key===b+'='+k?{b,k,key}:null;
+  }
+  if(skill==='teen'){
+    const from=/^([tqr])([1-9])$/.exec(key);
+    const map={t:'sum',q:'part',r:'minus'};
+    const f=item.f==='sum'||item.f==='part'||item.f==='minus'?item.f:(from?map[from[1]]:null);
+    const u=int(item.u)?item.u:(from?+from[2]:null);
+    const letter=f==='sum'?'t':f==='part'?'q':'r';
+    return u>=1&&u<=9&&f&&key===letter+u?{u,f,key}:null;
+  }
+  if(skill==='mix'){
+    if(int(item.a)&&int(item.b)&&item.a+'+'+item.b===key) return {a:item.a,b:item.b,key};
+    if(int(item.m)&&int(item.s)&&item.m+'-'+item.s===key) return {m:item.m,s:item.s,key};
+    const add=oneOf(E.ADD_ALL(), key), sub=oneOf(E.SUB_ALL(), key);
+    if(add) return {a:add.a,b:add.b,key:add.key};
+    if(sub) return {m:sub.m,s:sub.s,key:sub.key};
+    return null;
+  }
+  return null;
+}
+function snapItem(it){
+  const skill=S.skill, fixed=lessonItem(skill, it);
+  return fixed||null;
+}
+function replayLesson(t, preset){
+  const taps=Array.isArray(preset.taps)?preset.taps:[];
+  const step0=t.steps[0];
+  if(step0&&step0.kind==='act'){
+    taps.forEach(tap=>{ if(tap&&step0.can(tap.fi,tap.ci))step0.tap(tap.fi,tap.ci); });
+    if(step0.ready())t.si=Math.min(Math.max(preset.si|0,1),t.steps.length-1);
+  }else{
+    for(let i=0;i<(preset.si|0)&&i<t.steps.length-1;i++){ if(t.steps[i].ok)t.steps[i].ok(); t.si=i+1; }
+  }
+  t.wr=preset.wr|0; if(preset.clean===false)t.clean=false; t.heard=!!preset.heard;
+  if(preset.ins)t._ins={wr:Object.assign({},preset.ins.wr||{}),nl:preset.ins.nl|0,ex:preset.ins.ex|0,peek:preset.ins.peek|0};
+  if(preset.covered){ t.covered=true; t.flashStart=0; }
+  S.kp=typeof preset.kp==='string'?preset.kp:''; S.taps=taps.slice();
+}
+function snapLesson(closed){
+  if(!S.t||S.diag)return;
+  const t=S.t;
+  hook('lessonSnap',{closed:closed?1:0,len:SESSION(),phase:S.lessonPhase|0,count:S.count|0,results:(S.results||[]).slice(),
+    item:snapItem(t.item),form:t.form||'',si:t.si|0,wr:t.wr|0,kp:S.kp||'',clean:t.clean!==false,done:!!t.done,taps:(S.taps||[]).slice(),heard:!!t.heard,earned:S.earnedKnown===false?undefined:(S.earned|0),
+    ins:t._ins?{wr:Object.assign({},t._ins.wr||{}),nl:t._ins.nl|0,ex:t._ins.ex|0,peek:t._ins.peek|0}:null,covered:t.covered?1:0,
+    retry:lessonQueue(S.skill,S.retry),last:lessonLast(S.skill,t.item&&t.item.key)});
 }
 function nextTask(){
   stopFlash(); stopExplain(); S.unlocked=null;
   const p=P();
   if(!S.diag && S.count>=SESSION()){ endSession(); return; }
-  let t;
+  let t, resumed=false;
   if(S.diag){ const d=S.diag.list[S.diag.i]; t=E.G[d.skill](3, d.item, p.hard); }
   else{
-    const sk=S.skill, ph=p.skills[sk].phase; let it=null;
-    const di=S.retry.findIndex(r=>r.due<=S.count && r.skill===sk);
-    if(di>=0){ it=S.retry[di].item; S.retry.splice(di,1); }
+    const sk=S.skill, live=p.skills[sk].phase, asked=S.lessonPhase|0;
+    const ph=(asked>=1&&asked<live)?asked:live;
+    const preset=S.preset; S.preset=null; resumed=!!preset;
+    let it=null;
+    if(preset){
+      it=lessonItem(sk, preset.item);
+      if(!it){ S.t=null; S.storyLesson=0; go('map'); return; }
+      if(preset.form)it=Object.assign({},it,{form:preset.form});
+    }
+    if(!it){
+      const di=S.retry.findIndex(r=>r.due<=S.count && r.skill===sk);
+      if(di>=0){ it=S.retry[di].item; S.retry.splice(di,1); }
+    }
     t=E.G[sk](ph, it, p.hard);
+    if(preset&&preset.form&&t.form!==preset.form){
+      S.t=null; S.storyLesson=0; S.mixFormBlocked=preset.form; go('storyT07',{island:null}); return;
+    }
+    if(preset)replayLesson(t,preset); else S.taps=[];
   }
   t.onUncover = () => { stopFlash(); };
-  S.t=t; E.setLast(t.key); S.kp=''; t.startAt=Date.now();
-  startStep();
+  S.t=t; E.setLast(t.key); if(!resumed)S.kp=''; t.startAt=Date.now();
+  startStep(); snapLesson(0);
 }
 function curStep(){ const t=S.t; return t && !t.done ? t.steps[t.si] : null; }
 function startStep(){
   const t=S.t, st=curStep(); render();
-  if(st){ AU.say(S.diag ? null : st.instr); if(t.flash && st.kind==='num') startFlash(); }
+  if(st){ AU.say(S.diag ? null : st.instr); if(t.flash && st.kind==='num' && !t.covered) startFlash(); }
 }
 let flashTimer=null;
 function stopFlash(){ if(flashTimer){ clearTimeout(flashTimer); flashTimer=null; } }
-function coverNow(t){ stopFlash(); t.covered=true; t.flashStart=0; render(); const st=curStep(); if(st && st.instr2) AU.say(st.instr2); }
+function coverNow(t){ stopFlash(); t.covered=true; t.flashStart=0; render(); const st=curStep(); if(st && st.instr2) AU.say(st.instr2); snapLesson(0); }
 function startFlash(){ const t=S.t; stopFlash(); t.covered=false; t.flashStart=Date.now(); render(); flashTimer=setTimeout(()=>{ if(S.t===t && !t.done && t.flash) coverNow(t); }, FLASH_MS()); }
 
 /* объяснение голосом */
@@ -85,12 +216,13 @@ function runExplain(){
   const t=S.t, st=curStep(); if(!t||!st||!st.ex) return;
   stopExplain(); stopFlash(); E.clearH(t);
   EX={t, beats:st.ex(), i:0, play:0, tok:{}}; t.explaining=true; t.exText=''; t.heard=true; AU.duck(true);
+  snapLesson(0);
   nextBeat(EX.tok);
 }
 function nextBeat(tok){
   if(!EX||EX.tok!==tok) return; const t=EX.t;
   if(S.t!==t||t.done){ EX=null; return; }
-  if(EX.i>=EX.beats.length){ t.explaining=false; EX=null; E.clearH(t); AU.duck(false); t.msg=PH.ui.typeNow; t.msgT='reveal'; render(); AU.say(PH.ui.typeNow); return; }
+  if(EX.i>=EX.beats.length){ t.explaining=false; EX=null; E.clearH(t); AU.duck(false); t.msg=PH.ui.typeNow; t.msgT='reveal'; render(); AU.say(PH.ui.typeNow); snapLesson(0); return; }
   const idx=++EX.i, b=EX.beats[idx-1];
   E.clearH(t); if(b.do) b.do(); t.exText=b.say.text; render();
   speakExplainBeat(tok, false);
@@ -106,12 +238,12 @@ function speakExplainBeat(tok, force){
 function onCell(fi, ci){
   const t=S.t, st=curStep(); if(!t||!st||st.kind!=='act'||S.busy) return;
   if(!st.can(fi,ci)) return;
-  t.sfx=null; st.tap(fi,ci);
+  t.sfx=null; st.tap(fi,ci); S.taps=S.taps||[]; S.taps.push({fi,ci}); snapLesson(0);
   if(t.sfx==='no') AU.sfx.no(); else AU.sfx.tick();
   if(t.msg && t.sfx) { AU.say(t.msg); }
   if(st.ready()){
     S.busy=true; render();
-    setTimeout(()=>{ S.busy=false; if(S.t!==t) return; t.msg=st.doneMsg||E.pick(PH.praise); t.msgT='ok'; AU.sfx.ok(); t.si++; startStep(); }, reduce?150:550);
+    setTimeout(()=>{ S.busy=false; if(S.t!==t) return; t.msg=st.doneMsg||E.pick(PH.praise); t.msgT='ok'; AU.sfx.ok(); t.si++; startStep(); snapLesson(0); }, reduce?150:550);
   }else render();
 }
 function press(k){
@@ -119,7 +251,7 @@ function press(k){
   if(k==='del') S.kp=S.kp.slice(0,-1);
   else if(k==='go'){ submit(); return; }
   else if(S.kp.length<2) S.kp=(S.kp==='0'?'':S.kp)+k;
-  AU.sfx.key(); render();
+  AU.sfx.key(); render(); snapLesson(0);
 }
 function submit(){
   const t=S.t, st=curStep(); if(!t||!st||st.kind!=='num'||S.busy||S.kp==='') return;
@@ -129,11 +261,11 @@ function submit(){
   if(v===st.ans){
     AU.sfx.ok(); E.clearH(t); t.msg=E.pick(PH.praise); t.msgT='ok'; t.wr=0; stopFlash(); t.covered=false;
     if(st.ok) st.ok(); t.si++; t.heard=false; t.hintChain='';
-    if(t.si>=t.steps.length) finishTask(); else { AU.say(t.msg, {onend:()=>{}}); startStep(); }
+    if(t.si>=t.steps.length) finishTask(); else { AU.say(t.msg, {onend:()=>{}}); startStep(); snapLesson(0); }
   }else{
     AU.sfx.no(); t.clean=false; t.wr++; E.clearH(t);
-    if(t.wr===2 && st.ex){ t.msg=null; runExplain(); return; }
-    const lv=Math.min(t.wr,2); t.msg=st.hint(lv); t.msgT=lv===2?'reveal':'no'; render(); AU.say(t.msg);
+    if(t.wr===2 && st.ex){ t.msg=null; runExplain(); snapLesson(0); return; }
+    const lv=Math.min(t.wr,2); t.msg=st.hint(lv); t.msgT=lv===2?'reveal':'no'; render(); AU.say(t.msg); snapLesson(0);
   }
 }
 function dayRec(p){ const d=today(); if(!p.days[d]) p.days[d]={tasks:0,clean:0,secs:0,series:0,coins:0}; return p.days[d]; }
@@ -155,12 +287,12 @@ function finishTask(){
       else if(!st.done){
         st.done=true; st.hist=[];
         const nx=E.SKILLS[E.SK[t.skill].n];
-        if(nx){ p.cur=nx.id; S.skill=nx.id; S.retry=[]; S.unlocked=nx.id; S.notice='<b>'+CH.HEROES[nx.id].name+'</b>Навык «'+E.SK[t.skill].title+'» освоен! Новый друг ждёт тебя на карте.'; S.say=PH.heroes[nx.id].unlock; }
+        if(nx){ p.cur=nx.id; if(!S.storyLesson)S.skill=nx.id; S.retry=[]; S.unlocked=nx.id; S.notice='<b>'+CH.HEROES[nx.id].name+'</b>Навык «'+E.SK[t.skill].title+'» освоен! Новый друг ждёт тебя на карте.'; S.say=PH.heroes[nx.id].unlock; }
         else { S.unlocked=t.skill; S.notice='<b>Все друзья собраны!</b>Все навыки освоены. Тренируйся в уме.'; S.say=PH.ui.allDone; }
       }
     }else if(st.phase>1 && last4.length===4 && last4.filter(x=>!x).length>=3){ st.phase--; st.hist=[]; S.notice=PH.ui.phaseDown.text; S.say=PH.ui.phaseDown; }
   }
-  save(); hook('taskDone',t,p); render();
+  save(); hook('taskDone',t,p); snapLesson(0); render();
   if(t.clean) AU.sfx.coin();
   if(S.unlocked) AU.sfx.unlock();
   AU.say(t.msg, {onend:()=>{ if(S.say) AU.say(S.say); }});
@@ -176,7 +308,7 @@ function endSession(){
     p.streak.n = p.streak.last===yd ? p.streak.n+1 : 1; p.streak.last=td;
     bonus+=DB.parent.coinsDay; lines.push('Занятие сегодня: +'+DB.parent.coinsDay+(p.streak.n>1?' · '+p.streak.n+' дн. подряд':''));
   }
-  p.coins+=bonus; d.coins+=bonus; S.earned+=bonus; S.bonusLines=lines; save();
+  p.coins+=bonus; d.coins+=bonus; S.earned+=bonus; S.bonusLines=lines; snapLesson(1); S.lessonPhase=0; S.storyLesson=0; save();
   go('break'); AU.sfx.end(); AU.say(PH.ui.seriesDone, {onend:()=>{ AU.say(S.move); }});
 }
 
@@ -189,12 +321,117 @@ function diagAnswer(ok){
   if(d.fail || d.i>=d.list.length){ finishDiag(); return; }
   nextTask();
 }
+function earnedSkill(p){
+  return !!(p&&E.SKILLS.some(s=>{ const st=p.skills[s.id]; return st&&(st.done||st.phase>1||(st.hist&&st.hist.length)); }));
+}
+function blankSkills(){
+  const skills={}; let cur='see';
+  E.SKILLS.forEach(s=>{ skills[s.id]={phase:1,hist:[],done:false}; });
+  return {skills,cur};
+}
+function stepSkill(state, ev){
+  const sk=E.SK[ev.sk]; if(!sk) return false;
+  const st=state.skills[ev.sk]; if(!st) return false;
+  if(ev.sk!=='mix'&&ev.ph>st.phase) return false;
+  if(ev.sk!=='mix'&&ev.ph<st.phase) return true;
+  st.hist.push(ev.clean?1:0); if(st.hist.length>8) st.hist.shift();
+  const last5=st.hist.slice(-5), last4=st.hist.slice(-4);
+  if(last5.length>=5 && last5.reduce((a,b)=>a+b,0)>=4){
+    if(st.phase<sk.phases){ st.phase++; st.hist=[]; }
+    else if(!st.done){
+      st.done=true; st.hist=[];
+      const nx=E.SKILLS[sk.n];
+      if(nx) state.cur=nx.id;
+    }
+  }else if(st.phase>1 && last4.length===4 && last4.filter(x=>!x).length>=3){ st.phase--; st.hist=[]; }
+  return true;
+}
+function taskKeyOk(sk, key){
+  if(typeof key!=='string'||!key) return false;
+  if(sk==='see') return /^s([1-9]|10)$/.test(key);
+  if(sk==='to10') return /^[pm][1-9]$/.test(key)||key==='d1'||key==='d2';
+  if(sk==='split'){ if(key==='d3'||key==='d4') return true; const m=/^([3-9])=([1-8])$/.exec(key); return !!(m&&+m[2]<+m[1]); }
+  if(sk==='teen') return /^[tqr][1-9]$/.test(key)||key==='d5'||key==='d6';
+  if(sk==='add'||sk==='mix'){ const m=/^([2-9])\+([2-9])$/.exec(key); if(m&&+m[1]+ +m[2]>10) return sk==='add'||sk==='mix'; }
+  if(sk==='sub'||sk==='mix'){ const m=/^(1[1-8])-([2-9])$/.exec(key); if(m&&+m[2]>+m[1]-10) return true; }
+  return false;
+}
+function memoryJournal(){
+  const I=root.__insights;
+  return I&&I.ST&&I.ST.v===1&&I.ST.profiles?I.ST:null;
+}
+function profileTasks(id){
+  const ST=memoryJournal();
+  const row=ST&&ST.profiles[id];
+  return row&&Array.isArray(row.tasks)?row.tasks:[];
+}
+function readStore(key){
+  try{
+    if(!localStorage||typeof localStorage.getItem!=='function') return {ok:false};
+    const raw=localStorage.getItem(key);
+    if(typeof raw!=='string') return {ok:false};
+    JSON.parse(raw);
+    return {ok:true,raw};
+  }catch(e){ return {ok:false}; }
+}
+function storesMatch(){
+  const db=readStore(KEY), journal=readStore('terem_insights_v1');
+  if(!db.ok||!journal.ok) return null;
+  if(JSON.stringify(DB)!==JSON.stringify(JSON.parse(db.raw))) return null;
+  const mem=memoryJournal();
+  if(!mem||JSON.stringify(mem)!==JSON.stringify(JSON.parse(journal.raw))) return null;
+  return {db:db.raw,journal:journal.raw};
+}
+function wipedSkills(p){
+  return !!(p&&p.diag===true&&p.cur==='see'&&E.SKILLS.every(s=>{
+    const st=p.skills[s.id];
+    return st&&st.phase===1&&st.done===false&&Array.isArray(st.hist)&&st.hist.length===0;
+  }));
+}
+function skillProof(p){
+  const fail=(reason)=>({ok:false,reason});
+  if(!p) return fail('Нет профиля.');
+  const tasks=profileTasks(p.id);
+  if(!tasks.length) return fail('Журнала заданий нет.');
+  const seen=new Set();
+  let prev=-Infinity, clean=0;
+  const by={};
+  for(const ev of tasks){
+    if(!ev||typeof ev.at!=='number'||!Number.isFinite(ev.at)||(ev.clean!==0&&ev.clean!==1)||!E.SK[ev.sk]||!Number.isInteger(ev.ph)||ev.ph<1||ev.ph>E.SK[ev.sk].phases||!taskKeyOk(ev.sk, ev.key)) return fail('В журнале есть непонятное задание.');
+    if(seen.has(ev.at)||ev.at<prev) return fail('События журнала повторяются или идут не по времени.');
+    seen.add(ev.at); prev=ev.at;
+    if(ev.clean) clean++;
+    const d=dayOf(ev.at);
+    if(!by[d]) by[d]={tasks:0,clean:0};
+    by[d].tasks++; if(ev.clean) by[d].clean++;
+  }
+  const days=p.days||{};
+  for(const d of Object.keys(days)){
+    const row=days[d];
+    if(!row||!Number.isInteger(row.tasks)||row.tasks<0||!Number.isInteger(row.clean)||row.clean<0||row.clean>row.tasks) return fail('Дни профиля не сходятся.');
+    const got=by[d]||{tasks:0,clean:0};
+    if(row.tasks!==got.tasks||row.clean!==got.clean) return fail('Дни не сходятся с датами заданий.');
+  }
+  for(const d of Object.keys(by)) if(!days[d]) return fail('В журнале есть день, которого нет в профиле.');
+  const state=blankSkills();
+  for(const ev of tasks){
+    if(!stepSkill(state, ev)) return fail('Журнал не собирается с самого начала.');
+  }
+  if(clean!==Object.values(by).reduce((a,d)=>a+d.clean,0)) return fail('Чистые задания не сходятся.');
+  return {ok:true,skills:state.skills,cur:state.cur,tasks:tasks.length,clean,name:p.name};
+}
+function dayOf(at){ const d=new Date(at); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function finishDiag(){
   const p=P(), fail=S.diag.fail, start=fail==='to10'?'see':(fail||'mix');
-  const si=E.SKILLS.findIndex(s=>s.id===start);
-  E.SKILLS.forEach((s,i)=>{ const st=p.skills[s.id]; if(i<si){ st.done=true; st.phase=s.phases; st.hist=[]; } else { st.done=false; st.phase=1; st.hist=[]; } });
-  p.cur=start; p.diag=true; save();
-  S.diag=null; S.t=null; S.diagStart=start;
+  const keep=earnedSkill(p);
+  if(!keep){
+    const si=E.SKILLS.findIndex(s=>s.id===start);
+    E.SKILLS.forEach((s,i)=>{ const st=p.skills[s.id]; if(i<si){ st.done=true; st.phase=s.phases; st.hist=[]; } else { st.done=false; st.phase=1; st.hist=[]; } });
+    p.cur=start;
+  }
+  p.diag=true; save();
+  S.diag=null; S.t=null; S.diagStart=keep?p.cur:start;
+  if(keep){ S.notice='Проверка не отменяет уже полученные навыки.'; go('map'); return; }
   go('diagres'); AU.sfx.end(); AU.say(start==='mix'?PH.ui.diagPerfect:PH.ui.diagRes, {onend:()=>AU.say(PH.heroes[start].hello)});
 }
 
@@ -315,9 +552,11 @@ function viewStory(){
     '<div class="row"><button type="button" class="btn" data-act="storyNext">'+(i<n-1?'Дальше →':'Познакомиться!')+'</button>'+(i<n-1?'<button type="button" class="btn ghost" data-act="storySkip">Пропустить сказку</button>':'')+'</div></section>';
 }
 function viewNewProfile(){
+  // Различимые имена цветов слаймика: скринридер называет цвет, выбранность — aria-pressed + галочка (не только цветом).
+  const COLOR_NAME={'#5BD48F':'Зелёный','#FF92BC':'Розовый','#6CCBFF':'Голубой','#FFC83D':'Жёлтый','#B48CFF':'Фиолетовый','#FF8A5B':'Оранжевый'};
   return '<section class="card stage"><div class="endbox form"><h2>Как тебя зовут?</h2>'+pal('avatar','bob','', 'happy', S.newColor)+
     '<input id="nameInput" class="input" type="text" maxlength="16" placeholder="Имя" value="'+esc(S.newName)+'" autocomplete="off">'+
-    '<p class="muted">Выбери цвет своего слаймика</p><div class="swatches">'+CH.AVATARS.map(c=>'<button type="button" class="sw'+(c===S.newColor?' on':'')+'" style="--sw:'+c+'" data-act="color" data-color="'+c+'" aria-label="Цвет"></button>').join('')+'</div></div>'+
+    '<p class="muted" id="swLabel">Выбери цвет своего слаймика</p><div class="swatches" role="group" aria-labelledby="swLabel">'+CH.AVATARS.map(c=>'<button type="button" class="sw'+(c===S.newColor?' on':'')+'" style="--sw:'+c+'" data-act="color" data-color="'+c+'" aria-label="'+(COLOR_NAME[c]||'Цвет '+c)+'" aria-pressed="'+(c===S.newColor)+'"></button>').join('')+'</div></div>'+
     '<div class="row"><button type="button" class="btn" data-act="createProfile">Готово</button>'+(DB.profiles.length?'<button type="button" class="btn ghost" data-act="profiles">Отмена</button>':'')+'</div></section>';
 }
 function viewProfiles(){
@@ -328,18 +567,33 @@ function viewProfiles(){
 }
 function viewMap(){
   const p=P(); const done=new Set(E.SKILLS.filter(s=>p.skills[s.id].done).map(s=>s.id)); const curN=E.SK[p.cur].n; const locked=new Set(E.SKILLS.filter(s=>s.n>curN&&!p.skills[s.id].done).map(s=>s.id));
-  let h='<section class="mapwrap">'+CH.mapSVG({done, cur:p.cur, locked})+hook('mapExtra',p)+'</section>'+(CH.bottomNav?CH.bottomNav(p):'');
+  let h='<section class="mapwrap">'+CH.mapSVG({done, cur:p.cur, locked, open:S.island})+hook('mapExtra',p)+'</section>';
+  let proof={ok:false};
+  try{ proof=skillProof(p); }catch(e){ proof={ok:false}; }
+  const snap=proof.ok&&wipedSkills(p)?storesMatch():null;
+  if(snap && (proof.cur!==p.cur || E.SKILLS.some(s=>proof.skills[s.id].done||proof.skills[s.id].phase>1))){
+    S.skillGateDb=snap.db; S.skillGateJournal=snap.journal;
+    if(S.skillOffer!=='later') S.skillOffer='open';
+    const hero=CH.HEROES[proof.cur].name;
+    if(S.skillOffer==='open'){
+      h+='<div class="sheet-bg" data-act="skillLater"></div><section class="card sheet" role="dialog" aria-modal="true" aria-labelledby="skillGateTitle"><button type="button" class="close" data-act="skillLater" aria-label="Закрыть">✕</button>';
+      h+='<p class="eyebrow">'+esc(proof.name)+'</p><h2 id="skillGateTitle" tabindex="-1">Журнал хранит все '+proof.tasks+' заданий</h2><p>Чистых ответов '+proof.clean+'. Это сходится с днями профиля. По обычным правилам занятий открыт остров «'+esc(hero)+'».</p>';
+      h+='<button type="button" class="btn" data-act="skillGate">Вернуть навыки по журналу</button><button type="button" class="btn ghost" data-act="skillLater">Позже</button></section>';
+    }else h+='<button type="button" class="btn skill-offer" data-act="skillOffer">Вернуть навыки</button>';
+  }else S.skillOffer=null;
+  h+=(CH.bottomNav?CH.bottomNav(p):'');
   if(S.island) h+=islandSheet(S.island);
   return h;
 }
 function islandSheet(id){
   const p=P(), s=E.SK[id], st=p.skills[id], H=CH.HEROES[id];
   const curN=E.SK[p.cur].n, locked=s.n>curN&&!st.done;
-  let h='<div class="sheet-bg" data-act="closeIsland"></div><section class="card sheet"><button type="button" class="close" data-act="closeIsland" aria-label="Закрыть">✕</button>';
+  let h='<div class="sheet-bg" data-act="closeIsland"></div><section class="card sheet'+(id==='see'?' mint-meet':id==='to10'?' mill-meet':id==='split'?' jelly-meet':'')+'"><button type="button" class="close" data-act="closeIsland" aria-label="Закрыть">✕</button>';
   h+='<div class="herohead">'+pal(id,'bob',H.name,st.done?'happy':undefined)+'<div class="txt"><p class="eyebrow">'+(st.done?'Освоено':(locked?'Пока закрыто':(id===p.cur?'Сейчас учимся':'')))+'</p><h2>'+s.n+' · '+s.title+'</h2><p class="muted">'+s.desc+'</p><p class="guide">'+H.name+'</p></div></div>';
   if(s.phases>1&&!locked){ h+='<div class="phasebar">'; E.PHASES.forEach((ph,i)=>{ const cls=st.done||i+1<st.phase?'past':(i+1===st.phase?'on':''); h+='<span class="'+cls+'">'+(cls==='past'?'✓ ':'')+ph+'</span>'; }); h+='</div>'; }
   if(locked){ const prev=E.SKILLS[s.n-2]; h+='<p class="notice">Сначала подружись с героем острова '+(s.n-1)+': '+CH.HEROES[prev.id].name+'.</p><button type="button" class="btn ghost" data-act="hello" data-id="'+id+'">Послушать, кто здесь живёт</button>'; }
   else{
+    h+=hook('plainOffer',id);
     if(!p.diag&&id===p.cur) h+='<button type="button" class="btn" data-act="diag">Начать с проверки</button><button type="button" class="btn ghost" data-act="start" data-id="'+id+'">Без проверки · '+SESSION()+' заданий</button>';
     else h+='<button type="button" class="btn" data-act="start" data-id="'+id+'">'+(st.done?'Повторить':'Играть')+' · '+SESSION()+' заданий</button><button type="button" class="btn ghost" data-act="hello" data-id="'+id+'">'+H.name+', привет!</button>';
   }
@@ -350,7 +604,8 @@ function viewBreak(){
   const p=P(); const good=S.results.filter(Boolean).length;
   let stars=''; S.results.forEach((r,i)=>{ stars+=r?'<span class="on" style="animation-delay:'+(i*.08)+'s">★</span>':'<span class="off">★</span>'; });
   if(!S.move) S.move=E.pick(PH.moves);
-  return '<section class="card stage"><div class="endbox">'+pal(S.skill||p.cur,'bob',null,'happy')+'<h2>Серия готова! Перерыв</h2><div class="bigstars">'+stars+'</div><p class="muted">Без ошибок: '+good+' из '+S.results.length+' · заработано <b>'+S.earned+' ●</b></p>'+(S.bonusLines&&S.bonusLines.length?'<p class="bonus">'+S.bonusLines.join('<br>')+'</p>':'')+'<p class="move">'+S.move.text+'</p></div>'+
+  const money=S.earnedKnown===false?'':' · заработано <b>'+S.earned+' ●</b>';
+  return '<section class="card stage"><div class="endbox">'+pal(S.skill||p.cur,'bob',null,'happy')+'<h2>Серия готова! Перерыв</h2><div class="bigstars">'+stars+'</div><p class="muted">Без ошибок: '+good+' из '+S.results.length+money+'</p>'+(S.earnedKnown===false?'<p class="muted">Точная сумма монет этой серии после обновления страницы не сохранилась. Уже выданное в копилке не меняется.</p>':'')+(S.bonusLines&&S.bonusLines.length?'<p class="bonus">'+S.bonusLines.join('<br>')+'</p>':'')+'<p class="move">'+S.move.text+'</p></div>'+
     '<div class="row"><button type="button" class="btn" data-act="again">Ещё '+SESSION()+' заданий</button>'+hook('breakExtra',p)+'<button type="button" class="btn ghost" data-act="map">На карту</button></div></section>';
 }
 function viewDiagRes(){
@@ -442,13 +697,35 @@ function render(){
   app.innerHTML=h;
   document.body.dataset.screen=S.screen;
   document.body.classList.toggle('map-bg', S.screen==='map');
+  document.body.classList.toggle('mint-yard', !S.storyLesson && S.skill==='see' && (S.screen==='task' || S.screen==='break'));
+  document.body.classList.toggle('mill-yard', S.skill==='to10' && (S.screen==='task' || S.screen==='break'));
+  document.body.classList.toggle('mill-entry', S.screen==='storyT02');
+  document.body.classList.toggle('jelly-yard', S.skill==='split' && (S.screen==='task' || S.screen==='break'));
+  document.body.classList.toggle('jelly-entry', S.screen==='storyT03');
+  if(S.skill==='to10' && S.screen==='task' && S.t) document.body.dataset.mill=String(S.t.ph||'');
+  else delete document.body.dataset.mill;
   if(S.t&&S.t.frames) S.t.frames.forEach(f=>f.forEach(c=>{ c.an=''; }));
   const nb=$('#nextBtn'); if(nb) nb.focus({preventScroll:true});
+  const gate=$('#skillGateTitle'); if(gate) gate.focus({preventScroll:true});
+  const offer=document.querySelector('.skill-offer'); if(offer&&S.skillOffer==='later') offer.focus({preventScroll:true});
   const ni=$('#nameInput'); if(ni && !S.newName) ni.focus({preventScroll:true});
+  if(S.screen==='map'&&window.layoutMapSide) window.layoutMapSide();
 }
 
 /* ---------- события ---------- */
 document.addEventListener('pointerdown', ()=>AU.unlock(), {once:true, passive:true});
+document.addEventListener('keydown', e=>{
+  if(S.skillOffer!=='open')return;
+  const gate=document.querySelector('[role="dialog"][aria-modal="true"]');
+  if(!gate)return;
+  if(e.key==='Escape'){ e.preventDefault(); S.skillOffer='later'; render(); return; }
+  if(e.key!=='Tab')return;
+  const nodes=[].slice.call(gate.querySelectorAll('button,a,input,select,textarea'));
+  if(!nodes.length)return;
+  const first=nodes[0], last=nodes[nodes.length-1], cur=document.activeElement;
+  if(e.shiftKey&&(cur===first||!gate.contains(cur))){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey&&(cur===last||!gate.contains(cur))){ e.preventDefault(); first.focus(); }
+});
 $('#app').addEventListener('click', e=>{
   const cell=e.target.closest('[data-f]'); if(cell){ onCell(+cell.dataset.f,+cell.dataset.c); return; }
   const key=e.target.closest('[data-k]'); if(key){ press(key.dataset.k); return; }
@@ -462,14 +739,36 @@ $('#app').addEventListener('click', e=>{
     case 'closeIsland': S.island=null; render(); break;
     case 'start': S.island=null; startSession(id||p.cur); break;
     case 'diag': S.island=null; startDiag(); break;
+    case 'skillLater': S.skillOffer='later'; render(); break;
+    case 'skillOffer': S.skillOffer='open'; render(); break;
+    case 'skillGate': {
+      const live=storesMatch();
+      if(!live||live.db!==S.skillGateDb||live.journal!==S.skillGateJournal||!wipedSkills(p)){ toast('Сохранение изменилось. Обновите игру и откройте карту ещё раз.'); break; }
+      const proof=skillProof(p);
+      if(!proof.ok){ toast(proof.reason); break; }
+      const snapSkills=JSON.stringify(p.skills), snapCur=p.cur;
+      const rewards=JSON.stringify({stars:p.stars,coins:p.coins,hard:p.hard,days:p.days,streak:p.streak,diag:p.diag});
+      if(E.SKILLS.some(s=>{ const st=p.skills[s.id], src=proof.skills[s.id]; return src.phase<st.phase||(st.done&&!src.done); })){ toast('Уже есть более высокий навык. Журнал его не заменяет.'); break; }
+      E.SKILLS.forEach(s=>{ const st=p.skills[s.id], src=proof.skills[s.id]; st.phase=src.phase; st.done=src.done; st.hist=src.hist.slice(); });
+      p.cur=proof.cur; save();
+      let got=null;
+      try{ const back=JSON.parse(localStorage.getItem(KEY)||'null'); got=back&&back.profiles&&back.profiles.find(x=>x.id===p.id); }catch(e){ got=null; }
+      const written=got&&got.cur===p.cur&&E.SKILLS.every(s=>JSON.stringify(got.skills[s.id])===JSON.stringify(p.skills[s.id]));
+      if(!written||rewards!==JSON.stringify({stars:p.stars,coins:p.coins,hard:p.hard,days:p.days,streak:p.streak,diag:p.diag})){
+        p.skills=JSON.parse(snapSkills); p.cur=snapCur;
+        toast('Запись не сохранилась. Навыки остались как были. Обновите игру.');
+        break;
+      }
+      S.skillOffer=null; toast('Навыки возвращены по журналу. Награды не менялись.'); S.island=null; render(); break;
+    }
     case 'hello': AU.say(PH.heroes[id].hello, {force:true}); break;
     case 'next': next(); break;
     case 'again': S.move=null; S.bonusLines=null; startSession(S.skill||p.cur); break;
-    case 'peek': startFlash(); break;
+    case 'peek': if(S.t&&S.t.flash){ const x=S.t._ins||(S.t._ins={wr:{},nl:0,ex:0}); x.peek=(x.peek|0)+1; startFlash(); snapLesson(0); } break;
     case 'cover': if(S.t&&S.t.flash) coverNow(S.t); break;
     case 'say': { if(EX&&S.t&&S.t.explaining){ speakExplainBeat(EX.tok,true); break; } const st=curStep(); if(st) AU.say((S.t.covered&&st.instr2)?st.instr2:st.instr, {force:true}); break; }
     case 'explain': runExplain(); break;
-    case 'exstop': stopExplain(); AU.duck(false); S.t.msg=PH.ui.typeNow; S.t.msgT='reveal'; render(); break;
+    case 'exstop': stopExplain(); AU.duck(false); S.t.msg=PH.ui.typeNow; S.t.msgT='reveal'; render(); snapLesson(0); break;
     case 'chest': go('chest',{chestOffer:null,chestPicked:null}); if(p.pendingChest) openChest(); break;
     case 'openChest': openChest(); break;
     case 'pick': pickSticker(id); break;
@@ -530,7 +829,7 @@ const BASE = (document.currentScript && document.currentScript.src) ? document.c
 AU.init(BASE).then(()=>{});
 if(!DB.profiles.length){ S.screen = DB.seenStory ? 'newProfile' : 'story'; S.storyI=0; render(); if(S.screen==='story') setTimeout(()=>AU.say(PH.story[0]), 300); }
 else { if(!DB.active) DB.active=DB.profiles[0].id; S.screen='map'; render(); }
-root.__app = {S, get DB(){return DB}, P, curStep, render, go, startSession, E, save, toast, validBackup};
+root.__app = {S, get DB(){return DB}, P, curStep, render, go, startSession, lessonItem, E, save, toast, validBackup, skillProof, finishDiag};
 /* Optional spoken input uses exactly the same lesson actions as the keypad. */
 root.__app.voice={
  answer(n){ if(S.screen!=='task'||S.diag||S.busy||S.t?.explaining||curStep()?.kind!=='num'||!Number.isInteger(n)||n<0||n>20)return false;S.kp=String(n);submit();return true; },

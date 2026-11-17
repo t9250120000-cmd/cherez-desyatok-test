@@ -406,7 +406,13 @@ $('#app').addEventListener('click', e=>{ if(app().S.screen==='facts'&&G.mode==='
 $('#app').addEventListener('click', e=>{ const k=e.target.closest('[data-fk]'); if(k && app().S.screen==='facts'){ press(k.dataset.fk); } });
 document.addEventListener('keydown', e=>{
   if(app().S.screen!=='facts' || (e.target.closest && e.target.closest('input,textarea,summary'))) return;
-  if(/^[0-9]$/.test(e.key)){ e.preventDefault(); press(e.key); } else if(e.key==='Backspace'){ e.preventDefault(); press('del'); } else if(e.key==='Enter'){ e.preventDefault(); press('go'); }
+  if(/^[0-9]$/.test(e.key)){ e.preventDefault(); press(e.key); } else if(e.key==='Backspace'){ e.preventDefault(); press('del'); }
+  else if(e.key==='Enter'){
+    // Фокус на кнопке («Я сказал вслух!», «Дальше», «Увидел!», клавиши ответа): не перехватываем,
+    // браузер активирует её сам по нативной клавиатурной семантике — одно действие, без двойного срабатывания.
+    if(e.target.closest && e.target.closest('button,a,[role="button"]')) return;
+    e.preventDefault(); press('go');
+  }
 });
 root.__facts={G, ALL, rec, prof, shelves, due, known, fresh, store, settings, numberLineSVG, get ST(){return ST;}};
 // app.js paints a saved profile before this module registers its map entry.

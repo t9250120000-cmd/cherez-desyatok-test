@@ -101,6 +101,7 @@ body.map-bg{background-color:#CFEEDC}
 .map .isl.locked .lbl{fill:#8A84A8}
 .map .isl:focus-visible{outline:0}
 .map .isl:focus-visible ellipse:first-of-type{stroke:var(--cb);stroke-width:4;stroke-opacity:1}
+.skill-offer{position:fixed;z-index:9;left:50%;bottom:calc(max(74px,62px + env(safe-area-inset-bottom)));transform:translateX(-50%);width:auto;min-width:44px;max-width:min(92vw,320px);padding:0 18px}
 .sheet-bg{position:fixed;inset:0;background:rgba(43,34,69,.35);z-index:10}
 .sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);z-index:11;border-radius:28px 28px 0 0;padding:18px clamp(16px,4vw,28px) calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -6px 30px rgba(0,0,0,.15);animation:up .25s ease-out}
 @keyframes up{from{transform:translate(-50%,40px);opacity:0}}
@@ -218,8 +219,9 @@ button.cell{cursor:pointer}
 .bonus{color:var(--coin);font-weight:900}
 .move{font-weight:900;font-size:clamp(19px,5.2vw,24px);background:var(--soft);border-radius:20px;padding:14px 18px;max-width:28ch}
 .swatches{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.sw{width:44px;height:44px;border-radius:50%;background:var(--sw);border:3px solid var(--card);box-shadow:0 0 0 2px var(--line);cursor:pointer}
+.sw{width:44px;height:44px;border-radius:50%;background:var(--sw);border:3px solid var(--card);box-shadow:0 0 0 2px var(--line);cursor:pointer;display:grid;place-items:center}
 .sw.on{box-shadow:0 0 0 3px var(--ink)}
+.sw.on::after{content:'✓';color:#2B2245;font-weight:900;font-size:20px;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.5)}
 .plist{display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px}
 .prow{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:8px 12px;cursor:pointer;text-align:left;width:100%}
 .prow.on{border-color:var(--btn)} .prow .pal{width:48px;height:48px} .prow .txt{display:flex;flex-direction:column} .prow small{color:var(--muted)}

@@ -20,6 +20,7 @@ function loadSprite(file){
 A.preload = function(){ if(!A.sprites) return; Object.keys(A.sprites.files).slice(0,2).forEach(f=>loadSprite(f).catch(()=>{})); };
 A.unlock = function(){ const c=ctx(); if(c && A.sprites) A.preload(); };
 let speakTok = 0;
+A.speechRevision = () => speakTok;
 A.stop = function(){
   speakTok++;
   if(A.duck) A.duck(false);
@@ -35,7 +36,7 @@ A.say = function(ph, opt){
   const tok = ++speakTok;
   A.duck(true);
   const done = () => { if(tok===speakTok){ A.duck(false); if(opt.onend) opt.onend(); } };
-  const rec = A.sprites && A.sprites.index[text];
+  const rec = opt.recording || (A.sprites && A.sprites.index[text]);
   if(rec && ctx()){
     const [file, start, dur] = rec;
     loadSprite(file).then(buf=>{
@@ -51,6 +52,7 @@ A.say = function(ph, opt){
   fallback();
   function fallback(){
     if(tok!==speakTok) return;
+    if(opt.recordedOnly){ if(opt.onmissing) opt.onmissing(); done(); return; }
     if(!('speechSynthesis' in root) || typeof SpeechSynthesisUtterance==='undefined'){ setTimeout(done, 600+text.length*60); return; }
     try{
       const u = new SpeechSynthesisUtterance(text); u.lang='ru-RU'; u.rate=0.92; u.pitch=1.3;

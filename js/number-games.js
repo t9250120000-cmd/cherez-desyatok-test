@@ -4,9 +4,31 @@
   const app=root.__app,ext=root.__ext,C=root.TEREM_NUMBER_GAMES;
   if(!app||!ext||!C)return;
   const base=new URL('../',document.currentScript.src),asset=p=>new URL(p,base).href;
-  let selectedGame=null,state=null,paused=false,wrongs=0;
+  let selectedGame=null,state=null,paused=false,wrongs=0,origin=null;
+  const SEAT='story-t02-4';
+  function pid(){return (app.P()||{}).id||'';}
+  function seatSlot(){const id=pid();return id?'t02-e4-'+id:'';}
+  function seatOk(s){
+    return !!(s&&s.game==='house'&&(s.level==='first'||s.level==='next')&&Array.isArray(s.queue)&&s.queue.length===3&&Number.isInteger(s.round)&&s.round>=0&&s.round<=2&&(s.phase==='play'||s.phase==='success')&&s.task&&Number.isInteger(s.task.given)&&Array.isArray(s.selected)&&s.selected.every(i=>Number.isInteger(i)&&i>=0&&i<10)&&Array.isArray(s.results));
+  }
+  function readSeat(){
+    const I=root.__insights,p=I&&I.prof&&I.prof(),slot=seatSlot();
+    if(!p||!slot)return null;
+    const row=(p.games||[]).find(g=>g&&g.slot===slot&&g.origin===SEAT&&g.level==='draft'&&seatOk(g.seat));
+    return row?row.seat:null;
+  }
+  function saveSeat(){
+    if(origin!==SEAT||!state||!seatOk(state)||!root.__insights)return;
+    const slot=seatSlot();if(!slot)return;
+    root.__insights.logGame({game:'ten-bridge',origin:SEAT,level:'draft',slot,pid:pid(),rounds:state.round,errors:wrongs|0,supported:state.results.filter(r=>r.supported).length+(state.help?1:0),seat:{game:state.game,level:state.level,round:state.round,phase:state.phase,queue:state.queue,results:state.results,selected:state.selected.slice(),help:!!state.help,message:String(state.message||''),task:state.task,wrongs:wrongs|0}});
+  }
+  function clearSeat(){
+    if(origin!==SEAT||!root.__insights)return;
+    const slot=seatSlot();if(!slot)return;
+    root.__insights.logGame({game:'ten-bridge',origin:SEAT,level:'closed',slot,pid:pid(),rounds:0});
+  }
   // Итог серии — в наблюдения для родителя (если модуль наблюдений подключён). Награды не меняются.
-  function logFinish(){if(!state||state.phase!=='finish'||!root.__insights)return;root.__insights.logGame({game:state.game,level:state.level,rounds:state.results.length,errors:wrongs,supported:state.results.filter(r=>r.supported).length});}
+  function logFinish(){if(!state||state.phase!=='finish'||!root.__insights)return;root.__insights.logGame({game:state.game,level:state.level,rounds:state.results.length,errors:wrongs,supported:state.results.filter(r=>r.supported).length,...(origin?{origin}:null)});}
   const names={left:'Слева',right:'Справа',equal:'Поровну'};
   const berry='<svg class="ng-berry" viewBox="0 0 48 48" aria-hidden="true"><path d="M11 15C6 24 16 40 24 43C32 40 42 24 37 15C32 9 16 9 11 15Z" fill="#C44258"/><path d="M24 16L11 10L21 9L24 3L27 9L37 10Z" fill="#376E4B"/><path d="M17 22L18 25M29 21L28 24M23 30L24 33" stroke="#FFF4D6" stroke-width="2.5" stroke-linecap="round"/></svg>';
   function hero(id){return id==='see'?'<img class="ng-hero" src="'+asset('art/companion/bulk-waiting.webp')+'" alt="" draggable="false">':root.CH.pal(id,'ng-hero','','neutral');}
@@ -40,15 +62,19 @@
     return '<div class="ng-progress" aria-label="Задание '+(state.round+1)+' из 3">'+[0,1,2].map(i=>'<span class="'+(i<state.round?'done':i===state.round?'current':'')+'"></span>').join('')+'</div><header class="ng-heading"><h1 id="ng-title">'+title+'</h1><p>'+desc+'</p></header><div class="ng-scene">'+art+'</div><p class="ng-feedback" role="status">'+state.message+'</p><div class="ng-controls">'+controls+'</div>';
   }
   function finish(){return '<div class="ng-intro">'+hero(C.catalog[state.game].hero)+'<p class="ng-kicker">Три задания позади</p><h1 id="ng-title">Можно отдохнуть!</h1><p>Или выбрать другую игру.</p><div class="ng-finish-count" aria-label="Три задания завершены">✓ ✓ ✓</div>'+button('hub','Выбрать другую игру')+button('again','Ещё три задания',true)+button('exit','На карту',true)+'</div>';}
-  function view(){const body=paused?'<div class="ng-intro">'+hero('see')+'<h1 id="ng-title">Отдыхаем</h1><p>Продолжим, когда захочешь.<br>Задание тебя подождёт.</p>'+button('resume','Продолжить')+'</div>':!selectedGame?hub():!state?intro():state.phase==='finish'?finish():play();return '<section class="number-games" aria-labelledby="ng-title"><nav class="ng-nav" aria-label="Навигация">'+button(selectedGame?'hub':'exit',selectedGame?'← Все игры':'← На карту',true)+(state&&state.phase!=='finish'&&!paused?button('pause','Перерыв',true):'')+'</nav>'+body+'</section>';}
+  function view(){const body=paused?'<div class="ng-intro">'+hero('see')+'<h1 id="ng-title">Отдыхаем</h1><p>Продолжим, когда захочешь.<br>Задание тебя подождёт.</p>'+button('resume','Продолжить')+'</div>':!selectedGame?hub():!state?intro():state.phase==='finish'?finish():play();return '<section class="number-games'+(origin==='story-t02-4'?' mill-seat':'')+'" aria-labelledby="ng-title"><nav class="ng-nav" aria-label="Навигация">'+button(selectedGame?'hub':'exit',selectedGame?'← Все игры':'← На карту',true)+(state&&state.phase!=='finish'&&!paused?button('pause','Перерыв',true):'')+'</nav>'+body+'</section>';}
   function paint(focus){app.render();if(focus)document.querySelector(focus)?.focus({preventScroll:true});}
-  function open(){selectedGame=null;state=null;paused=false;app.go('numberGames',{island:null});}
+  function open(opts){origin=opts&&typeof opts.origin==='string'?opts.origin:null;
+    const g=opts&&typeof opts.game==='string'?opts.game:null;
+    selectedGame=g&&Object.hasOwn(C.catalog,g)?g:null;paused=false;state=null;wrongs=0;
+    if(origin===SEAT&&selectedGame==='house'){const seat=readSeat();if(seat){state=seat;wrongs=seat.wrongs|0;}}
+    app.go('numberGames',{island:null});}
   ext.views.numberGames=view;ext.acts.numberGames=open;
   document.getElementById('app').addEventListener('click',e=>{
     const b=e.target.closest('[data-ng]');if(!b||app.S.screen!=='numberGames')return;
     const action=b.dataset.ng;
-    if(action==='exit'){root.AUDIO.stop();state=null;app.go('map',{island:null});return;}
-    if(action==='hub'){root.AUDIO.stop();open();return;}
+    if(action==='exit'){saveSeat();root.AUDIO.stop();state=null;app.go('map',{island:null});return;}
+    if(action==='hub'){saveSeat();root.AUDIO.stop();open();return;}
     if(action==='pick'){
       if(selectedGame)return;
       if(b.dataset.game==='feed'){ext.acts.foundations();return;}
@@ -58,10 +84,10 @@
     }
     if(action==='first'||action==='nextLevel'||action==='again'){
       if(!selectedGame||state&&state.phase!=='finish')return;
-      state=C.create(selectedGame,action==='again'?state.level:action==='first'?'first':'next');paused=false;wrongs=0;paint();return;
+      state=C.create(selectedGame,action==='again'?state.level:action==='first'?'first':'next');paused=false;wrongs=0;saveSeat();paint();return;
     }
     if(!state)return;
-    if(action==='pause'){paused=true;root.AUDIO.stop();paint('[data-ng="resume"]');return;}
+    if(action==='pause'){paused=true;root.AUDIO.stop();saveSeat();paint('[data-ng="resume"]');return;}
     if(action==='resume'){paused=false;paint();return;}
     if(paused)return;
     if(action==='targetVoice'){root.AUDIO.say(root.FP.answer(state.task.answer),{force:true});return;}
@@ -69,11 +95,16 @@
     state=C.reduce(state,{type:action,round:Number(b.dataset.round),index:Number(b.dataset.index),value:state.game==='compare'?b.dataset.value:Number(b.dataset.value)});
     if(state===prev)return;
     if((action==='answer'||action==='check')&&state.phase==='play'&&state.message)wrongs++;
-    if(state.phase==='finish'&&prev.phase!=='finish')logFinish();
+    if(state.phase==='finish'&&prev.phase!=='finish'){logFinish();clearSeat();}
+    else saveSeat();
     root.AUDIO.stop();
     const focus=state.phase==='success'?'[data-ng="next"]':action==='toggle'?'[data-ng="toggle"][data-index="'+b.dataset.index+'"]':action==='place'?(state.selected.length===state.task.answer?'[data-ng="answer"]':'[data-ng="place"]:not(:disabled)'):action==='help'?'[data-ng="help"]':action==='answer'?'[data-ng="answer"]':null;
     paint(focus);
+    /* На коротком экране (масштаб 200%) кнопка «Следующее задание» может оказаться
+       подрезанной снизу; доводим прокрутку до неё. При 100% кнопка уже видна целиком,
+       и block:'nearest' прокрутку не меняет. */
+    if(state.phase==='success')document.querySelector('[data-ng="next"]')?.scrollIntoView({block:'nearest'});
   });
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&app.S.screen==='numberGames'&&state&&state.phase!=='finish'){paused=true;root.AUDIO.stop();paint();}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&app.S.screen==='numberGames'&&state&&state.phase!=='finish'){paused=true;root.AUDIO.stop();saveSeat();paint();}});
   if(app.S.screen==='map')app.render();
 })(window);

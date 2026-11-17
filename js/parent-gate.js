@@ -6,16 +6,22 @@
   const app=root.__app,ext=root.__ext;
   if(!app||!ext)return;
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let pass=null,overlay=null;
+  let pass=null,overlay=null,prevFocus=null;
 
   // Повторить исходное действие игры: на время клика наш перехват отключён.
   function replay(act,id){
     pass=act;const b=document.createElement('button');b.type='button';b.hidden=true;b.dataset.act=act;if(id)b.dataset.id=id;
     document.getElementById('app').appendChild(b);try{b.click();}finally{b.remove();pass=null;}
   }
-  function close(){if(overlay){overlay.remove();overlay=null;}}
+  function close(){
+    if(overlay){overlay.remove();overlay=null;}
+    // Вернуть фокус кнопке, открывшей диалог (WCAG 2.4.3): иначе фокус теряется на body.
+    if(prevFocus&&document.contains(prevFocus)){try{prevFocus.focus({preventScroll:true});}catch(e){}}
+    prevFocus=null;
+  }
   function open(html,focusSel){
-    close();overlay=document.createElement('div');overlay.className='focus-rest pg-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','pg-title');
+    close();prevFocus=document.activeElement;
+    overlay=document.createElement('div');overlay.className='focus-rest pg-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','pg-title');
     overlay.innerHTML='<div class="focus-rest-card pg-card">'+html+'</div>';document.body.appendChild(overlay);
     const f=overlay.querySelector(focusSel||'button');if(f)f.focus({preventScroll:true});
   }
@@ -61,6 +67,18 @@
   root.addEventListener('keydown',e=>{
     if(!overlay)return;
     if(e.key==='Escape'){e.preventDefault();close();return;}
+    // Ловушка фокуса: Tab/Shift+Tab не выпускают фокус на фон модального диалога (WCAG 2.1.2, aria-modal).
+    if(e.key==='Tab'){
+      const f=[...overlay.querySelectorAll('button,[href],input,select,textarea,[tabindex]')]
+        .filter(el=>!el.disabled&&el.tabIndex>=0&&el.getClientRects().length);
+      if(!f.length){e.preventDefault();e.stopImmediatePropagation();return;}
+      const first=f[0],last=f[f.length-1],t=e.target;
+      if(e.shiftKey?!overlay.contains(t)||t===first:!overlay.contains(t)||t===last){
+        e.preventDefault();e.stopImmediatePropagation();
+        (e.shiftKey?last:first).focus();return;
+      }
+      return; // внутри диалога — обычный переход между клавишами
+    }
     if(overlay.querySelector('.pg-keys')&&/^([0-9]|Backspace|Enter)$/.test(e.key)){
       if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.pg==='cancel'){e.preventDefault();e.stopImmediatePropagation();close();return;}
       if(/^[0-9]$/.test(e.key)){e.preventDefault();e.stopImmediatePropagation();gateKey(e.key);return;}

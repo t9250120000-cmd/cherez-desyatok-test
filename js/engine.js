@@ -368,9 +368,17 @@ G.mix = (ph, it, hard) => {
   t.frames = isAdd ? [fr([['a',o.a]]), fr([['b',o.b]])] : [fr([['a',10]]), fr([['a',o.u]])];
   t.show = false;
   const K = isAdd ? addKit(t,o) : subKit(t,o);
-  const rnd = Math.random();
-  let form = rnd<.4 ? 'plain' : (rnd<.68 ? 'word' : 'miss');
-  if(form==='miss') form = isAdd ? pick(['missR','missL']) : 'missS';
+  const saved = it && typeof it.form==='string' ? it.form : '';
+  const allowed = isAdd ? ['plain','word','missR','missL'] : ['plain','word','missS'];
+  let form;
+  if(saved){
+    if(allowed.indexOf(saved)<0){ t.form=''; return t; }
+    form = saved;
+  }else{
+    const rnd = Math.random();
+    form = rnd<.4 ? 'plain' : (rnd<.68 ? 'word' : 'miss');
+    if(form==='miss') form = isAdd ? pick(['missR','missL']) : 'missS';
+  }
   t.form = form; t.chain = chainHTML(o,true);
   const sep = ' <span class="muted">·</span> ';
   let ans, instr = MX.result, ex = K.full;

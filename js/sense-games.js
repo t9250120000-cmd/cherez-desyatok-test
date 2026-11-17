@@ -56,7 +56,7 @@
   function raceView(){
     const P=app.P()||{name:'Ты'};
     let title,desc,controls='';
-    if(s.phase==='roll'){title='Твой ход';desc='Ты на клетке '+s.you+'. Бросай кубик.';controls=btn('roll','Бросить кубик');}
+    if(s.phase==='roll'){const left=s.end-s.you;title='Твой ход';desc='Ты на клетке '+s.you+'. Бросай кубик.'+(left<s.maxDie?' До финиша '+left+' '+(left===1?'клетка':left<5?'клетки':'клеток')+' — кубик покажет не больше '+left+'.':'');controls=btn('roll','Бросить кубик');}
     else if(s.phase==='move'){title='Куда прыгнет слаймик?';desc='Ты на '+s.you+'. На кубике '+s.die+'. Нажми на клетку.';controls=btn('help','Подсказка',true);}
     else if(s.phase==='bulk'){title='Получилось!';desc='Ты на клетке '+s.you+'. Теперь ходит Бульк.';controls=btn('bulk','Ход Булька');}
     else{const win=s.winner==='you';title=win?'Ты первый!':'Бульк первый!';desc=win?'Ты добрался до '+s.end+'.':'В этот раз Бульк быстрее. Сыграем ещё?';controls=btn('again','Ещё раз')+btn('hub','Другая игра',true)+btn('exit','На карту',true);}
@@ -81,7 +81,7 @@
       '<div class="sg-given">'+face(t.given,t.n,'big'+(s.help&&t.given!=='picture'?'':''))+btn('listen','Послушать число',true)+'</div>'+
       (s.help&&t.given!=='picture'&&!ok?'<div class="sg-helpcard">'+picture(t.n)+'</div>':'')+
       (ok?'<p class="ng-solution">'+t.n+' = '+C.WORDS[t.n]+'</p>':rows)+
-      '<p class="ng-feedback" role="status">'+msg('triple',s.msgKey)+'</p><div class="ng-controls">'+(ok?btn('next',s.round===total-1?'Завершить':'Следующее число',false,'data-round="'+s.round+'"'):btn('help','Подсказка',true,'data-round="'+s.round+'"'))+'</div>';
+      '<p class="ng-feedback" role="status">'+msg('triple',C.tripleFeedbackKey(s))+'</p><div class="ng-controls">'+(ok?btn('next',s.round===total-1?'Завершить':'Следующее число',false,'data-round="'+s.round+'"'):btn('help','Подсказка',true,'data-round="'+s.round+'"'))+'</div>';
   }
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -119,7 +119,7 @@
       if(s===prev)return;
       root.AUDIO.stop();
       const cur=s;
-      if(action==='roll')speak(SP.race.move);
+      if(action==='roll')root.AUDIO.say(root.FP.answer(s.die),{onend:()=>{if(s!==cur||paused||app.S.screen!=='senseGames')return;speak(SP.race.move);}});
       else if(action==='help'||action==='cell'&&s.you===prev.you)speak(SP.race[s.msgKey]);
       else if(action==='cell')root.AUDIO.say(root.FP.answer(s.you),{onend:()=>{if(s!==cur)return;if(s.phase==='finish')speak(SP.race.win,{onend:()=>{}});else speak(SP.race.bulk);}});
       else if(action==='bulk')root.AUDIO.say(root.FP.answer(s.bulk),{onend:()=>{if(s!==cur)return;speak(s.phase==='finish'?SP.race.lose:SP.race.roll);}});
@@ -131,8 +131,9 @@
     s=C.tripleReduce(s,{type:action,round:Number(b.dataset.round),kind:b.dataset.kind,value:Number(b.dataset.value)});
     if(s===prev)return;
     root.AUDIO.stop();
-    if(s.phase==='success')speak(SP.triple.done,{onend:()=>{}})||praise();
-    else if(s.msgKey)speak(SP.triple[s.msgKey]);
+    if(action==='next'&&s.phase==='play')speak(SP.triple.task);
+    else if(s.phase==='success')speak(SP.triple.done,{onend:()=>{}})||praise();
+    else if(s.msgKey)speak(SP.triple[C.tripleFeedbackKey(s)]);
     log();
     paint(s.phase==='success'?'[data-sg="next"]':s.phase==='finish'?'[data-sg="again"]':action==='help'?'[data-sg="listen"]':null);
   });

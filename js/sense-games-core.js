@@ -21,9 +21,12 @@
     const cross=from<10&&to>10?{toTen:10-from,rest:to-10}:null;
     return {hops,cross,key:cross?'cross':'hop'};
   }
+  // Кубик не выбрасывает больше оставшихся клеток: у финиша грани ограничены расстоянием до него.
+  // Поэтому всегда «куда прыгнуть = где стоишь + сколько на кубике» — и у ребёнка, и у Булька.
+  function faces(max,from,end){return Math.max(1,Math.min(max,end-from));}
   function raceReduce(s,a,rng){
     if(s.phase==='finish')return s;
-    if(a.type==='roll'&&s.phase==='roll'){const die=rnd(rng,s.maxDie);return {...s,phase:'move',die,target:Math.min(s.end,s.you+die),help:false,wrongTurn:0,msgKey:''};}
+    if(a.type==='roll'&&s.phase==='roll'){const die=rnd(rng,faces(s.maxDie,s.you,s.end));return {...s,phase:'move',die,target:s.you+die,help:false,wrongTurn:0,msgKey:''};}
     if(a.type==='help'&&s.phase==='move')return {...s,help:true,msgKey:raceHint(s).key};
     if(a.type==='cell'&&s.phase==='move'){
       if(!Number.isInteger(a.value)||a.value<0||a.value>s.end)return s;
@@ -37,7 +40,7 @@
       return {...next,phase:'bulk'};
     }
     if(a.type==='bulk'&&s.phase==='bulk'){
-      const die=rnd(rng,s.bulkDie),to=Math.min(s.end,s.bulk+die);
+      const die=rnd(rng,faces(s.bulkDie,s.bulk,s.end)),to=s.bulk+die;
       const next={...s,bulk:to,bulkLast:{from:s.bulk,die,to},die:null,target:null,help:false};
       if(to>=s.end)return {...next,phase:'finish',winner:'bulk'};
       return {...next,phase:'roll'};
@@ -86,8 +89,10 @@
     }
     return s;
   }
+  // Do not describe a full ten plus a remainder when the target is below eleven.
+  function tripleFeedbackKey(s){return s.msgKey==='picture'&&s.task.n<=10?'help':s.msgKey;}
   function tripleResult(s){return {game:'triple',level:s.level,rounds:s.results.length,errors:s.results.reduce((a,r)=>a+r.wrong,0),supported:s.results.filter(r=>r.supported).length};}
 
-  const api={WORDS,RACE,TRIPLE,KINDS,raceCreate,raceReduce,raceHint,raceResult,tripleCreate,tripleReduce,tripleResult,distractors};
+  const api={WORDS,RACE,TRIPLE,KINDS,raceCreate,raceReduce,raceHint,raceResult,raceFaces:faces,tripleCreate,tripleReduce,tripleResult,tripleFeedbackKey,distractors};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.TEREM_SENSE=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -24,10 +24,11 @@ const sites=[
 const lock='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="3"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg>';
 CH.mapSVG=function(state){
  let h='<div class="illustrated-world"><svg class="map" viewBox="0 0 360 610" preserveAspectRatio="none" role="img" aria-label="Семь островов сказочной тропинки"><image class="world-day" href="'+images['map-day']+'" width="360" height="610" preserveAspectRatio="none"/><image class="world-night" href="'+images['map-night']+'" width="360" height="610" preserveAspectRatio="none"/></svg><div class="map-hotspots">';
- for(const o of sites){const cur=state.cur===o.id,closed=state.locked.has(o.id),done=state.done.has(o.id);const pos='left:'+o.x/360*100+'%;top:'+o.y/610*100+'%;';
-  // Locked state stays legible without obscuring the chosen artwork.
+ for(const o of sites){const cur=state.cur===o.id,closed=state.locked.has(o.id),done=state.done.has(o.id),open=state.open===o.id;const pos='left:'+o.x/360*100+'%;top:'+o.y/610*100+'%;';
+  const status=closed?'. Пока закрыто':done?'. Освоено':'. Сейчас учимся';
+  const mark=closed?'<i class="island-mark lock">'+lock+'</i>':done?'<i class="island-mark done" aria-hidden="true"></i>':cur?'<i class="island-mark now" aria-hidden="true"></i>':'';
   if(o.id==='see')h+='<span class="map-guide" style="left:25%;top:23%" aria-hidden="true">'+CH.palSVG('see','neutral')+'</span>';
-  h+='<button type="button" class="map-pin'+(cur?' current':'')+(closed?' locked':'')+'" data-isl="'+o.id+'" style="'+pos+'"'+(cur?' aria-current="step"':'')+' aria-label="'+o.name+'. '+CH.HEROES[o.id].name+(closed?'. Пока закрыто':done?'. Освоено':'. Сейчас учимся')+'">'+'<span class="island-label">'+o.name+'</span><span class="island-state">'+(closed?lock:done?'✓ Освоено':'Сейчас учимся')+'</span></button>';
+  h+='<button type="button" class="map-pin'+(cur?' current':'')+(closed?' locked':'')+(open?' on':'')+'" data-isl="'+o.id+'" style="'+pos+'"'+(cur?' aria-current="step"':'')+' aria-label="'+o.name+'. '+CH.HEROES[o.id].name+status+'"><span class="island-label">'+o.name+'</span>'+mark+'</button>';
  }
  return h+'</div></div>';
 };

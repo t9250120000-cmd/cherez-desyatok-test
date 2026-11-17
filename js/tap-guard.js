@@ -5,8 +5,8 @@
 (function(root){
   'use strict';
   const app=root.__app;if(!app)return;
-  const SCREENS=new Set(['numberGames','foundations','senseGames']);
-  const SEL='[data-ng],[data-picnic],[data-sg]';
+  const SCREENS=new Set(['numberGames','foundations','senseGames','numberPlay','mathAdventures']);
+  const SEL='[data-ng],[data-picnic],[data-sg],[data-np],[data-ma]';
   const MS=450;
   let last=null,guard=null;      // last — точка и время последнего нажатия; guard — кнопка под этой точкой после перерисовки
   const host=document.getElementById('app');
@@ -14,7 +14,9 @@
   new MutationObserver(()=>{
     if(!last||!SCREENS.has(app.S.screen)||Date.now()-last.t>MS)return;
     const b=under(last.x,last.y);
-    if(b&&b!==last.el)guard={el:b,until:last.t+MS};
+    // Кнопки-счётчики («+ Положить», «− Убрать») можно нажимать подряд: та же кнопка после перерисовки не блокируется.
+    const same=b&&b.hasAttribute('data-repeat')&&last.el&&b.getAttribute('data-repeat')===last.el.getAttribute('data-repeat');
+    if(b&&b!==last.el&&!same)guard={el:b,until:last.t+MS};
   }).observe(host,{childList:true});
   host.addEventListener('click',e=>{
     if(!SCREENS.has(app.S.screen))return;

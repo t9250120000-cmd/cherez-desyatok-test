@@ -27,7 +27,7 @@
   ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>{lastInput=Date.now();},{passive:true,capture:true}));
   setInterval(()=>{
     const p=app.P();if(!p)return;const c=cfg(p.id);
-    const st={screen:app.S.screen,visible:!document.hidden,idleMs:Date.now()-lastInput,paused:!!(root.__focus&&root.__focus.open)};
+    const st={screen:app.S.screen,visible:!document.hidden,idleMs:Date.now()-lastInput,paused:!!(root.__focus&&root.__focus.open)||!!document.querySelector('[data-ma=resume],[data-np=resume],[data-ng=resume],[data-sg=resume],[data-picnic=resume]')};
     const d=day(p.id);
     if(D.counts(st)){d.sec+=TICK/1000;d.activeAt=Date.now();if(d.sec%10===0)store();}
     if(c.on&&!d.goalAt&&D.progress(d.sec,c.goal).done){d.goalAt=Date.now();pending=true;store();}
@@ -41,7 +41,7 @@
     if(sc==='map'||sc==='break'||sc==='diagres')return true;
     if(sc==='task')return !!(S.t&&S.t.done);
     if(sc==='facts')return !!(root.__facts&&['result','home'].includes(root.__facts.G.mode));
-    if(sc==='senseGames'||sc==='numberGames'||sc==='foundations')return !!document.querySelector('[data-sg=again],[data-ng=again],[data-picnic=home],.ng-library');
+    if(sc==='senseGames'||sc==='numberGames'||sc==='foundations'||sc==='numberPlay'||sc==='mathAdventures')return !!document.querySelector('[data-sg=again],[data-ng=again],[data-picnic=home],[data-np=again],[data-ma=again],.ng-library');
     return false;
   }
 
@@ -174,4 +174,6 @@
   ext.acts.repSend=()=>{send('manual')?app.toast('Итог отправлен в Telegram.'):app.toast('Не удалось отправить. Проверьте интернет.');};
 
   root.__daily={cfg,day,reportText,send,chats,REPORT,get ST(){return ST;},celebrate:()=>{pending=true;},KEY};
+  // app.js renders a returning player's map before this module installs mapExtra.
+  if(app.S.screen==='map'&&app.P())app.render();
 })(window);

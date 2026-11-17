@@ -1,0 +1,39 @@
+/* The 20-game library follows iOS Dynamic Type. The existing game, save format,
+   counting-object geometry and font family remain unchanged. 17px is the iOS
+   default body size; rem sizes retain the original visual sizes at that default. */
+html{font-size:17px}
+@supports(font:-apple-system-body){html{font:-apple-system-body}}
+.number-games,.picnic{font-size:.941176rem;overflow-wrap:anywhere}
+.ng-library,.ma-library-starters,.ma-library-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}
+.ng-hub-heading{flex-wrap:wrap}
+.ng-nav,.picnic-nav{flex-wrap:wrap}
+.ng-button,.picnic-button{height:auto;white-space:normal;overflow-wrap:anywhere}
+.np-pair .ng-button{white-space:normal}
+.ng-stone,.np-wagon{height:auto;min-height:52px}
+/* Text badges may grow; counting frames and objects keep their positions. */
+.picnic-count{height:auto;min-height:25px;line-height:1.3}
+.picnic-totals{flex-wrap:wrap}
+.picnic-totals span{width:auto;min-width:max(56px,2em);height:auto;min-height:56px;padding:4px;line-height:1.25}
+/* Whole-word answers wrap as buttons, rather than splitting into letters. */
+.ng-choices{flex-wrap:wrap}
+.ng-choices .ng-button{flex:1 1 max-content;max-width:100%}
+/* Keep corresponding quantities level even when one heading takes two lines. */
+.ng-baskets{row-gap:8px}
+.ng-basket{display:grid;grid-template-rows:subgrid;grid-row:span 3;padding:12px 4px}
+.ng-basket h2{margin:0}
+.np-baskets,.ma-houses,.ma-scales{grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr))}
+.np-total{flex-wrap:wrap}
+.ma-actions .ng-button{flex:1 1 max-content;max-width:100%}
+/* Keep the ruler's units together; at enlarged sizes it can be panned. */
+.ma-measure{overflow-x:auto;max-width:100%;padding-bottom:8px}
+.ma-measure:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ma-measure-content{min-width:14rem;padding:0 1rem}
+.ma-ruler{height:auto;min-height:1.4em}
+.ma-flag{top:3px;font-size:24px}
+/* Catalogue illustrations reserve their full height. Multi-digit badges stay
+   together; these rules do not change the objects inside playable tasks. */
+.ng-card-art{height:auto;min-height:80px;flex-wrap:wrap;overflow-wrap:normal}
+.ng-card-art .ng-card-number{line-height:1.5}
+.ng-card-path span,.sg-card-race span,.np-card-train>span{width:auto;min-width:34px;height:auto;min-height:43px;padding:4px;white-space:nowrap;flex:0 0 auto}
+.ma-card-art>span{max-width:100%;white-space:normal;overflow-wrap:normal;text-align:center}
+.ng-card[data-game="number-domino"] .ma-card-art>span{width:100%;box-sizing:border-box;font-size:min(1.470588rem,8.5vw)}
